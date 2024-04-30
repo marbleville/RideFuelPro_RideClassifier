@@ -1,11 +1,10 @@
 const fetch = require("node-fetch");
 require("dotenv").config();
 
-const auth_link = "https://www.strava.com/api/v3/oauth/token";
-
 // Uses refresh token to get new access token
 async function reAuthorize() {
 	try {
+		const auth_link = "https://www.strava.com/api/v3/oauth/token";
 		const res = await fetch(auth_link, {
 			method: "post",
 			headers: {
@@ -27,4 +26,24 @@ async function reAuthorize() {
 	}
 }
 
-module.exports = { reAuthorize };
+async function getActivityPowerStream(id) {
+	const res = await reAuthorize();
+	const power_link = `https://www.strava.com/api/v3/activities/${id}/streams`; //?power?access_token=${res.access_token}`;
+
+	const result = await fetch(power_link, {
+		method: "get",
+		headers: {
+			Accept: "application/json, text/plain, */*",
+			"Content-Type": "application/json",
+		},
+
+		body: JSON.stringify({
+			keys: `[power]`,
+			key_by_type: `true`,
+		}),
+	});
+	const json = await result.json();
+	return json;
+}
+
+module.exports = { reAuthorize, getActivityPowerStream };
