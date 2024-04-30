@@ -1,8 +1,13 @@
 const fetch = require("node-fetch");
+const fs = require("fs");
 require("dotenv").config();
 
 const auth_link = "https://www.strava.com/api/v3/oauth/token";
 
+/*
+ * Uses access token to get activities
+ * @param {object} res - JSON object containing access token
+ */
 async function getActivites(res) {
 	const activities_link = `https://www.strava.com/api/v3/athlete/activities?access_token=${res.access_token}`;
 
@@ -20,6 +25,7 @@ async function getActivites(res) {
 	}
 }
 
+// Uses refresh token to get new access token, then calls getActivites
 async function reAuthorize() {
 	try {
 		const res = await fetch(auth_link, {
