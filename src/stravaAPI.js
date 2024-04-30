@@ -1,11 +1,14 @@
 const fetch = require("node-fetch");
 require("dotenv").config();
 
-// Uses refresh token to get new access token
+/**
+ * Uses refresh token to get new access token
+ * @returns {Promise} - Promise object represents the JSON of the new access token
+ */
 async function reAuthorize() {
 	try {
-		const auth_link = "https://www.strava.com/api/v3/oauth/token";
-		const res = await fetch(auth_link, {
+		const authLink = "https://www.strava.com/api/v3/oauth/token";
+		const res = await fetch(authLink, {
 			method: "post",
 			headers: {
 				Accept: "application/json, text/plain, */*",
@@ -26,46 +29,41 @@ async function reAuthorize() {
 	}
 }
 
-/*
+/**
  * Uses access token to get activities
- * @param {object} res - JSON object containing access token
+ * @param {number} perPage - Number of activities per page
+ * @param {number} page - Page number
+ * @returns {Promise} - Promise object represents the JSON of activities
  */
-async function getActivites() {
-	let options = {
-		page: 1,
-		per_page: 20,
-	};
+async function getActivites(perPage, page) {
+	if (Date.now() / 1000 > process.env.STRAVA_ACCESS_TOKEN_EXPIRES_AT) {
+		const res = await reAuthorize();
+		process.env.STRAVA_ACCESS_TOKEN = res.access_token;
+		process.env.STRAVA_ACCESS_TOKEN_EXPIRES_AT = res.expires_at;
+	}
 
-	const res = await refreshToken.reAuthorize();
-
-	const activities_link = `https://www.strava.com/api/v3/athlete/activities?page=${options.page}&per_page=${options.per_page}&access_token=${res.access_token}`;
+	const activitiesLink = `https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=${perPage}&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
 	try {
-		const result = await fetch(activities_link);
-
+		const result = await fetch(activitiesLink);
 		const json = await result.json();
-		try {
-			fs.writeFileSync(
-				"./resources/activities.json",
-				JSON.stringify(json)
-			);
-			// file written successfully
-			console.log(`${json.length} Activities written to file`);
-		} catch (err) {
-			console.error(err);
-		}
+		return json;
 	} catch (error) {
 		console.log(error);
 	}
 }
 
-// Returns power stream for a given activity id
+/**
+ * Returns power stream for a given activity id
+ * @param {number} id - Activity id
+ * @returns {Promise} - Promise object represents the JSON of the power stream
+ */
 async function getActivityPowerStream(id) {
 	try {
 		const res = await reAuthorize();
-		const power_link = `https://www.strava.com/api/v3/activities/${id}/streams?keys=[power]&key_by_type=true&access_token=${res.access_token}`;
+		const powerLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=[power]&key_by_type=true&access_token=${res.access_token}`;
 
-		const result = await fetch(power_link);
+		const result = await fetch(powerLink);
 		const json = await result.json();
 		return json;
 	} catch (error) {
