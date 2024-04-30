@@ -12,5 +12,5 @@ Given ride data form Strava, this project aims to classify the type of ride base
     - STRAVA_ACCESS_TOKEN=0
     - STRAVA_REFRESH_TOKEN=[your_refresh_token]
     - STRAVA_ACCESS_TOKEN_EXPIRES_AT=0
-4. Run the project with npm run [num] to downlaod and classify some of your activities
+4. Run the project with npm run [num] [FTP] to downlaod and classify [num] of your activities
 5. The output will be a JSON file called "activities.json" with the activities downloaded and classified

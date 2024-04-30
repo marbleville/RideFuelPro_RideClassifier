@@ -3,6 +3,7 @@ require("dotenv").config();
 
 /**
  * Uses refresh token to get new access token
+ *
  * @returns {Promise} - Promise object represents the JSON of the new access token
  */
 async function reAuthorize() {
@@ -31,6 +32,7 @@ async function reAuthorize() {
 
 /**
  * Uses access token to get activities
+ *
  * @param {number} perPage - Number of activities per page
  * @param {number} page - Page number
  * @returns {Promise} - Promise object represents the JSON of activities
@@ -55,15 +57,16 @@ async function getActivites(perPage, page) {
 
 /**
  * Returns power stream for a given activity id
+ *
  * @param {number} id - Activity id
  * @returns {Promise} - Promise object represents the JSON of the power stream
  */
-async function getActivityPowerStream(id) {
+async function getActivityPowerAndAltitudeStream(id) {
 	try {
 		const res = await reAuthorize();
-		const powerLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=[power]&key_by_type=true&access_token=${res.access_token}`;
+		const streamLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=[power,altitude]&key_by_type=true&access_token=${res.access_token}`;
 
-		const result = await fetch(powerLink);
+		const result = await fetch(streamLink);
 		const json = await result.json();
 		return json;
 	} catch (error) {
@@ -71,4 +74,8 @@ async function getActivityPowerStream(id) {
 	}
 }
 
-module.exports = { reAuthorize, getActivityPowerStream, getActivites };
+module.exports = {
+	reAuthorize,
+	getActivityPowerAndAltitudeStream,
+	getActivites,
+};
