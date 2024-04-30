@@ -1,25 +1,26 @@
 {
-  "name": "ridefuelpro",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/marbleville/RideFuelPro.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/marbleville/RideFuelPro/issues"
-  },
-  "homepage": "https://github.com/marbleville/RideFuelPro#readme",
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "node-fetch": "^2.7.0",
-    "strava-v3": "^2.2.0"
-  }
+	"name": "ridefuelpro",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"get": "node ./src/getActivities.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/marbleville/RideFuelPro.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/marbleville/RideFuelPro/issues"
+	},
+	"homepage": "https://github.com/marbleville/RideFuelPro#readme",
+	"dependencies": {
+		"dotenv": "^16.4.5",
+		"node-fetch": "^2.7.0",
+		"strava-v3": "^2.2.0"
+	}
 }

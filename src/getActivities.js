@@ -19,7 +19,16 @@ async function getActivites(res) {
 	try {
 		const result = await fetch(activities_link);
 		const json = await result.json();
-		console.log(json);
+		try {
+			fs.writeFileSync(
+				"./resources/activities.json",
+				JSON.stringify(json)
+			);
+			// file written successfully
+			console.log(`${json.length} Activities written to file`);
+		} catch (err) {
+			console.error(err);
+		}
 	} catch (error) {
 		console.log(error);
 	}
