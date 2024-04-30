@@ -1,15 +1,20 @@
 const fetch = require("node-fetch");
 const fs = require("fs");
-require("dotenv").config();
+const refreshToken = require("./refreshToken.js");
 
-const auth_link = "https://www.strava.com/api/v3/oauth/token";
+let options = {
+	page: 1,
+	per_page: 20,
+};
 
 /*
  * Uses access token to get activities
  * @param {object} res - JSON object containing access token
  */
-async function getActivites(res) {
-	const activities_link = `https://www.strava.com/api/v3/athlete/activities?access_token=${res.access_token}`;
+async function getActivites() {
+	const res = await refreshToken.reAuthorize();
+
+	const activities_link = `https://www.strava.com/api/v3/athlete/activities?page=${options.page}&per_page=${options.per_page}&access_token=${res.access_token}`;
 
 	if (res.message === "Bad Request") {
 		console.log(res);
@@ -18,6 +23,12 @@ async function getActivites(res) {
 
 	try {
 		const result = await fetch(activities_link);
+
+		if (result.message === "Bad Request") {
+			console.log(result);
+			return;
+		}
+
 		const json = await result.json();
 		try {
 			fs.writeFileSync(
@@ -34,28 +45,4 @@ async function getActivites(res) {
 	}
 }
 
-// Uses refresh token to get new access token, then calls getActivites
-async function reAuthorize() {
-	try {
-		const res = await fetch(auth_link, {
-			method: "post",
-			headers: {
-				Accept: "application/json, text/plain, */*",
-				"Content-Type": "application/json",
-			},
-
-			body: JSON.stringify({
-				client_id: `${process.env.STRAVA_CLIENT_ID}`,
-				client_secret: `${process.env.STRAVA_CLIENT_SECRET}`,
-				refresh_token: `${process.env.STRAVA_REFRESH_TOKEN}`,
-				grant_type: "refresh_token",
-			}),
-		});
-		const json = await res.json();
-		getActivites(json);
-	} catch (error) {
-		console.log(error);
-	}
-}
-
-reAuthorize();
+getActivites();
