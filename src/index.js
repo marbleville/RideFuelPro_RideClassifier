@@ -113,6 +113,22 @@ async function refactorRides(rides) {
 }
 
 /**
+ * Calculates the missing values for an array of rides
+ *
+ * @param {Array} rides - Array of rides to calculate missing values for
+ * @returns {Array} - Array of rides with missing values calculated
+ */
+function calculateMissingRideValuesArray(rides) {}
+
+/**
+ * Calculates the missing values for a single ride
+ *
+ * @param {rideEntry} ride - Ride object to calculate missing values for
+ * @returns {rideEntry} - Ride object with missing values calculated
+ */
+function calculateMissingRideValues(ride) {}
+
+/**
  * Classfies an array of rides into different types
  *
  * @param {Array} rides - Array of rides to be classified
@@ -150,6 +166,7 @@ async function main() {
 
 	let activites = await getNumActivites(num);
 	activites = await refactorRides(activites);
+	activites = calculateMissingRideValuesArray(activites);
 	activites = getRideTypeArray(activites, ftp);
 
 	try {
