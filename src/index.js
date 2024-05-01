@@ -1,5 +1,6 @@
 const fs = require("fs");
 const api = require("./stravaAPI.js");
+const { time } = require("console");
 
 // Object contianing the different types of rides
 const typeOfRide = {
@@ -19,13 +20,22 @@ let rideEntry = {
 	percent_down: 0,
 	percent_flat: 0,
 	average_uphill_gradient: 0,
+	average_speed_uphill: 0,
+	average_speed_downhill: 0,
+	average_speed_flat: 0,
+	total_elevation_gain: 0,
 	average_speed: 0,
 	average_watts: 0,
+	average_watts_uphill: 0,
+	average_watts_downhill: 0,
+	average_watts_flat: 0,
 	weighted_average_watts: 0,
 	kilojoules: 0,
 	average_heartrate: 0,
 	power_stream: [],
 	altitude_stream: [],
+	distance_stream: [],
+	time_stream: [],
 	workout_type: "",
 };
 
@@ -65,8 +75,43 @@ async function getNumActivites(num) {
  * @param {Array} rides
  * @returns {Array} - Array of refactored rides
  */
-function refactorRides(rides) {
+async function refactorRides(rides) {
 	let refactoredRides = [];
+
+	for (let ride of rides) {
+		let rideData = Object.create(rideEntry);
+
+		rideData.name = ride.name;
+		rideData.distance = ride.distance;
+		rideData.moving_time = ride.moving_time;
+		rideData.total_elevation_gain = ride.total_elevation_gain;
+		rideData.average_watts = ride.average_watts;
+		rideData.average_watts_uphill = -1;
+		rideData.average_watts_downhill = -1;
+		rideData.average_watts_flat = -1;
+		rideData.average_speed_uphill = -1;
+		rideData.average_speed_downhill = -1;
+		rideData.average_speed_flat = -1;
+		rideData.weighted_average_watts = ride.weighted_average_watts;
+		rideData.average_speed = ride.average_speed;
+		rideData.kilojoules = ride.kilojoules;
+		rideData.average_heartrate = ride.average_heartrate;
+		rideData.workout_type = typeOfRide.unknown;
+		rideData.percent_up = 0;
+		rideData.percent_down = 0;
+		rideData.percent_flat = 0;
+		rideData.average_uphill_gradient = 0;
+
+		// Get streams
+		let powerStream = await api.getActivityStreams(ride.id);
+
+		console.log(powerStream);
+
+		rideData.power_stream = powerStream.watts;
+		rideData.altitude_stream = powerStream.altitude;
+		rideData.distance_stream = powerStream.distance;
+		rideData.time_stream = powerStream.time;
+	}
 }
 
 /**
@@ -92,7 +137,7 @@ function getRideType(ride, ftp) {}
  *
  * @returns {Number} - 1 on error, 0 on success
  */
-function main() {
+async function main() {
 	// Get the command line arguments.
 	const args = process.argv.slice(2);
 
@@ -105,8 +150,8 @@ function main() {
 	let num = parseInt(args[0]);
 	let ftp = parseInt(args[1]);
 
-	let activites = getNumActivites(num);
-	activites = refactorRides(activites);
+	let activites = await getNumActivites(num);
+	activites = await refactorRides(activites);
 	activites = getRideTypeArray(activites, ftp);
 
 	try {
