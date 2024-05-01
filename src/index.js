@@ -40,10 +40,12 @@ async function getNumActivites(num) {
 
 	let activities = [];
 
+	// Load num rides into the activities array
 	while (activities.length < num) {
 		let json = await api.getActivites(perPage, page);
 
 		for (activity of json) {
+			// only add rides to the activities array
 			if (activity.type === "Ride") {
 				activities.push(activity);
 			}

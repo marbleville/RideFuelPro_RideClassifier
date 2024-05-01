@@ -9,6 +9,7 @@ require("dotenv").config();
 async function reAuthorize() {
 	try {
 		const authLink = "https://www.strava.com/api/v3/oauth/token";
+		// Fetch new access token
 		const res = await fetch(authLink, {
 			method: "post",
 			headers: {
@@ -30,6 +31,15 @@ async function reAuthorize() {
 	}
 }
 
+async function checkAccessTokenExpiration() {
+	// Check if access token has expired
+	if (Date.now() / 1000 > process.env.STRAVA_ACCESS_TOKEN_EXPIRES_AT) {
+		const res = await reAuthorize();
+		process.env.STRAVA_ACCESS_TOKEN = res.access_token;
+		process.env.STRAVA_ACCESS_TOKEN_EXPIRES_AT = res.expires_at;
+	}
+}
+
 /**
  * Uses access token to get activities
  *
@@ -38,15 +48,12 @@ async function reAuthorize() {
  * @returns {Promise} - Promise object represents the JSON of activities
  */
 async function getActivites(perPage, page) {
-	if (Date.now() / 1000 > process.env.STRAVA_ACCESS_TOKEN_EXPIRES_AT) {
-		const res = await reAuthorize();
-		process.env.STRAVA_ACCESS_TOKEN = res.access_token;
-		process.env.STRAVA_ACCESS_TOKEN_EXPIRES_AT = res.expires_at;
-	}
+	checkAccessTokenExpiration();
 
 	const activitiesLink = `https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=${perPage}&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
 	try {
+		// Fetch activities
 		const result = await fetch(activitiesLink);
 		const json = await result.json();
 		return json;
@@ -62,10 +69,11 @@ async function getActivites(perPage, page) {
  * @returns {Promise} - Promise object represents the JSON of the power stream
  */
 async function getActivityPowerAndAltitudeStream(id) {
-	try {
-		const res = await reAuthorize();
-		const streamLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=[power,altitude]&key_by_type=true&access_token=${res.access_token}`;
+	checkAccessTokenExpiration();
+	const streamLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=[power,altitude]&key_by_type=true&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
+	try {
+		// Fetch power stream
 		const result = await fetch(streamLink);
 		const json = await result.json();
 		return json;
