@@ -1,6 +1,12 @@
 const fs = require("fs");
 const api = require("./stravaAPI.js");
 
+const typeOfRide = {
+	intervals: "Intervals",
+	endurance: "Endurance",
+	race: "Race",
+};
+
 /**
  * Retuns an array of num activities
  * @param {number} num - Number of cycling activities to write
