@@ -98,8 +98,24 @@ function main() {
 
 	// Check if the correct number of arguments were passed.
 	if (args.length !== 2) {
-		console.log("Usage: node index.js [num_activities] [rider_ftp]");
+		console.log("Usage: node src/index.js [num_activities] [rider_ftp]");
+		return 1;
+	}
+
+	let num = parseInt(args[0]);
+	let ftp = parseInt(args[1]);
+
+	let activites = getNumActivites(num);
+	activites = refactorRides(activites);
+	activites = getRideTypeArray(activites, ftp);
+
+	try {
+		fs.writeFileSync("activites.json", JSON.stringify(activites));
+		return 0;
+	} catch (error) {
+		console.error(error);
 		return 1;
 	}
 }
-getNumActivites(10, "activities");
+
+main();
