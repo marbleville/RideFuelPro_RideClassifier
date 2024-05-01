@@ -138,15 +138,6 @@ function calculateMissingRideValues(ride) {}
 function getRideTypeArray(rides, ftp) {}
 
 /**
- * Returns the type of ride based on the rideEntry object
- *
- * @param {rideEntry} ride - Ride object to be classfied
- * @param {Number} ftp - Rider's FTP
- * @returns {String} - Ride type
- */
-function getRideType(ride, ftp) {}
-
-/**
  * Main function for the classifier script
  *
  * @returns {Number} - 1 on error, 0 on success
