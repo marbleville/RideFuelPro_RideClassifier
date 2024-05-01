@@ -48,8 +48,7 @@ async function checkAccessTokenExpiration() {
  * @returns {Promise} - Promise object represents the JSON of activities
  */
 async function getActivites(perPage, page) {
-	checkAccessTokenExpiration();
-
+	await checkAccessTokenExpiration();
 	const activitiesLink = `https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=${perPage}&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
 	try {
@@ -69,7 +68,7 @@ async function getActivites(perPage, page) {
  * @returns {Promise} - Promise object represents the JSON of the power stream
  */
 async function getActivityPowerAndAltitudeStream(id) {
-	checkAccessTokenExpiration();
+	await checkAccessTokenExpiration();
 	const streamLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=[power,altitude]&key_by_type=true&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
 	try {
