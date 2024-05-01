@@ -69,7 +69,7 @@ async function getActivites(perPage, page) {
  */
 async function getActivityStreams(id) {
 	await checkAccessTokenExpiration();
-	const streamLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=watts,altitude&key_by_type=true&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
+	const streamLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=watts,altitude,time&key_by_type=true&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
 	try {
 		// Fetch power stream

@@ -105,8 +105,6 @@ async function refactorRides(rides) {
 		// Get streams
 		let powerStream = await api.getActivityStreams(ride.id);
 
-		console.log(powerStream);
-
 		rideData.power_stream = powerStream.watts;
 		rideData.altitude_stream = powerStream.altitude;
 		rideData.distance_stream = powerStream.distance;
