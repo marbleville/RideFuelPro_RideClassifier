@@ -74,6 +74,7 @@ function getRideType(ride, ftp) {
 
 /**
  * Calculates the missing values for a single ride
+ *
  * Missing values include:
  * - average_watts_uphill
  * - average_watts_downhill
@@ -216,7 +217,11 @@ function getAverageUphillGradient(ride) {
  * @param {rideEntry} ride - Ride object to find hills from
  * @returns {Array} - Array of hillEntries found in the ride
  */
-function findHills(ride) {}
+function findHills(ride) {
+	let hills = [];
+
+	return hills;
+}
 
 export default {
 	rideEntry,

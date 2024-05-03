@@ -8,6 +8,7 @@ import {
 
 /**
  * Retuns an array of num activities
+ *
  * @param {Number} num - Number of cycling activities to write
  * @returns {Array} - Array of num activites
  */
@@ -86,6 +87,7 @@ async function refactorRides(rides) {
 
 /**
  * Calculates the missing values for an array of rides
+ *
  * Missing values include:
  * - average_watts_uphill
  * - average_watts_downhill
@@ -132,13 +134,13 @@ async function main() {
 	activites = await refactorRides(activites);
 	activites = calculateMissingRideValuesArray(activites, ftp);
 
-	// try {
-	// 	fs.writeFileSync("activites.json", JSON.stringify(activites));
-	// 	return 0;
-	// } catch (error) {
-	// 	console.error(error);
-	// 	return 1;
-	// }
+	try {
+		fs.writeFileSync("activites.json", JSON.stringify(activites));
+		return 0;
+	} catch (error) {
+		console.error(error);
+		return 1;
+	}
 }
 
 main();
