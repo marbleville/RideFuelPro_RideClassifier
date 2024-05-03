@@ -1,5 +1,10 @@
 const fs = require("fs");
 const api = require("./stravaAPI.js");
+import {
+	rideEntry,
+	typeOfRide,
+	calculateMissingRideValues,
+} from "./rideEntry.js";
 
 /**
  * Retuns an array of num activities
@@ -63,6 +68,7 @@ async function refactorRides(rides) {
 		rideData.percent_down = 0;
 		rideData.percent_flat = 0;
 		rideData.average_uphill_gradient = 0;
+		rideData.hills = [];
 
 		// Get streams
 		let powerStream = await api.getActivityStreams(ride.id);
@@ -91,27 +97,15 @@ async function refactorRides(rides) {
  * - percent_down
  * - percent_flat
  * - average_uphill_gradient
+ * - hills
+ * - workout_type
  *
  * @param {Array} rides - Array of rides to calculate missing values for
  * @returns {Array} - Array of rides with missing values calculated
  */
-function calculateMissingRideValuesArray(rides) {
+function calculateMissingRideValuesArray(rides, ftp) {
 	for (let ride of rides) {
-		ride = calculateMissingRideValues(ride);
-	}
-	return rides;
-}
-
-/**
- * Classfies an array of rides into different types
- *
- * @param {Array} rides - Array of rides to be classified
- * @param {Number} ftp - Rider's FTP
- * @returns {Array} - Array of classified rides
- */
-function getRideTypeArray(rides, ftp) {
-	for (let ride of rides) {
-		ride.workout_type = getRideType(ride, ftp);
+		ride = calculateMissingRideValues(ride, ftp);
 	}
 	return rides;
 }
@@ -136,8 +130,7 @@ async function main() {
 
 	let activites = await getNumActivites(num);
 	activites = await refactorRides(activites);
-	activites = calculateMissingRideValuesArray(activites);
-	activites = getRideTypeArray(activites, ftp);
+	activites = calculateMissingRideValuesArray(activites, ftp);
 
 	// try {
 	// 	fs.writeFileSync("activites.json", JSON.stringify(activites));
