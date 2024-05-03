@@ -116,7 +116,9 @@ function calculateMissingRideValues(ride, ftp) {
  * @param {rideEntry} ride - Ride object to calculate uphill watts from
  * @returns {Number} - Average watts for uphill sections
  */
-function getUphillWatts(ride) {}
+function getUphillWatts(ride) {
+	return 0;
+}
 
 /**
  * Returns the average watts for downhill sections of a ride
@@ -124,7 +126,9 @@ function getUphillWatts(ride) {}
  * @param {rideEntry} ride - Ride object to calculate uphill watts from
  * @returns {Number} - Average watts for downhill sections
  */
-function getDownhillWatts(ride) {}
+function getDownhillWatts(ride) {
+	return 0;
+}
 
 /**
  * Returns the average watts for flat sections of a ride
@@ -132,7 +136,9 @@ function getDownhillWatts(ride) {}
  * @param {rideEntry} ride - Ride object to calculate uphill watts from
  * @returns {Number} - Average watts for flat sections
  */
-function getFlatWatts(ride) {}
+function getFlatWatts(ride) {
+	return 0;
+}
 
 /**
  * Returns the average speed for uphill sections of a ride
@@ -140,7 +146,9 @@ function getFlatWatts(ride) {}
  * @param {rideEntry} ride - Ride object to calculate uphill speed from
  * @returns {Number} - Average speed for uphill sections in meters per second
  */
-function getUphillSpeed(ride) {}
+function getUphillSpeed(ride) {
+	return 0;
+}
 
 /**
  * Returns the average speed for downhill sections of a ride
@@ -148,7 +156,9 @@ function getUphillSpeed(ride) {}
  * @param {rideEntry} ride - Ride object to calculate uphill speed from
  * @returns {Number} - Average speed for downhill sections in meters per second
  */
-function getDownhillSpeed(ride) {}
+function getDownhillSpeed(ride) {
+	return 0;
+}
 
 /**
  * Returns the average speed for flat sections of a ride
@@ -156,7 +166,9 @@ function getDownhillSpeed(ride) {}
  * @param {rideEntry} ride - Ride object to calculate uphill speed from
  * @returns {Number} - Average speed for flat sections in meters per second
  */
-function getUphillSpeed(ride) {}
+function getUphillSpeed(ride) {
+	return 0;
+}
 
 /**
  * Returns the percent of the total distance of the ride that is uphill
@@ -164,7 +176,9 @@ function getUphillSpeed(ride) {}
  * @param {rideEntry} ride - Ride object to calculate uphill percent from
  * @returns {Number} - Percent of ride that is uphill as a decimal
  */
-function getUphillPercentage(ride) {}
+function getUphillPercentage(ride) {
+	return 0;
+}
 
 /**
  * Returns the percent of the total distance of the ride that is downhill
@@ -172,7 +186,9 @@ function getUphillPercentage(ride) {}
  * @param {rideEntry} ride - Ride object to calculate downhill percent from
  * @returns {Number} - Percent of ride that is downhill as a decimal
  */
-function getDownhillPercentage(ride) {}
+function getDownhillPercentage(ride) {
+	return 0;
+}
 
 /**
  * Returns the percent of the total distance of the ride that is flat
@@ -180,7 +196,9 @@ function getDownhillPercentage(ride) {}
  * @param {rideEntry} ride - Ride object to calculate flat percent from
  * @returns {Number} - Percent of ride that is flat as a decimal
  */
-function getFlatPercentage(ride) {}
+function getFlatPercentage(ride) {
+	return 0;
+}
 
 /**
  * Returns the average gradient of the uphill sections of a ride
@@ -188,7 +206,9 @@ function getFlatPercentage(ride) {}
  * @param {rideEntry} ride - Ride object to calculate average gradient from
  * @returns {Number} - Average gradient of all hills in the ride, as a decimal
  */
-function getAverageUphillGradient(ride) {}
+function getAverageUphillGradient(ride) {
+	return 0;
+}
 
 /**
  * Finds hills in a ride and adds them to the ride object
