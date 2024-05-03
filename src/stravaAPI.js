@@ -4,7 +4,8 @@ require("dotenv").config();
 /**
  * Uses refresh token to get new access token
  *
- * @returns {Promise} - Promise object represents the JSON of the new access token
+ * @returns {Promise} - Promise object represents the JSON of the new
+ * 						access token
  */
 async function reAuthorize() {
 	try {
@@ -49,7 +50,10 @@ async function checkAccessTokenExpiration() {
  */
 async function getActivites(perPage, page) {
 	await checkAccessTokenExpiration();
-	const activitiesLink = `https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=${perPage}&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
+	const activitiesLink =
+		`https://www.strava.com/api/v3/athlete/activities?` +
+		`page=${page}&per_page=${perPage}&` +
+		`access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
 	try {
 		// Fetch activities
@@ -69,7 +73,10 @@ async function getActivites(perPage, page) {
  */
 async function getActivityStreams(id) {
 	await checkAccessTokenExpiration();
-	const streamLink = `https://www.strava.com/api/v3/activities/${id}/streams?keys=watts,altitude,time&key_by_type=true&access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
+	const streamLink =
+		`https://www.strava.com/api/v3/activities/${id}` +
+		`/streams?keys=watts,altitude,time&key_by_type=true&` +
+		`access_token=${process.env.STRAVA_ACCESS_TOKEN}`;
 
 	try {
 		// Fetch power stream
