@@ -1,43 +1,5 @@
 const fs = require("fs");
 const api = require("./stravaAPI.js");
-const { time } = require("console");
-
-// Object contianing the different types of rides
-const typeOfRide = {
-	intervals: "Intervals",
-	endurance: "Endurance",
-	race: "Race",
-	unknown: "Unknown",
-};
-
-// Object containing a ride's assiciated data
-let rideEntry = {
-	name: "",
-	distance: 0,
-	moving_time: 0,
-	total_elevation_gain: 0,
-	percent_up: 0,
-	percent_down: 0,
-	percent_flat: 0,
-	average_uphill_gradient: 0,
-	average_speed_uphill: 0,
-	average_speed_downhill: 0,
-	average_speed_flat: 0,
-	total_elevation_gain: 0,
-	average_speed: 0,
-	average_watts: 0,
-	average_watts_uphill: 0,
-	average_watts_downhill: 0,
-	average_watts_flat: 0,
-	weighted_average_watts: 0,
-	kilojoules: 0,
-	average_heartrate: 0,
-	power_stream: [],
-	altitude_stream: [],
-	distance_stream: [],
-	time_stream: [],
-	workout_type: "",
-};
 
 /**
  * Retuns an array of num activities
@@ -109,7 +71,11 @@ async function refactorRides(rides) {
 		rideData.altitude_stream = powerStream.altitude;
 		rideData.distance_stream = powerStream.distance;
 		rideData.time_stream = powerStream.time;
+
+		refactoredRides.push(rideData);
 	}
+
+	return refactoredRides;
 }
 
 /**
@@ -129,15 +95,12 @@ async function refactorRides(rides) {
  * @param {Array} rides - Array of rides to calculate missing values for
  * @returns {Array} - Array of rides with missing values calculated
  */
-function calculateMissingRideValuesArray(rides) {}
-
-/**
- * Calculates the missing values for a single ride
- *
- * @param {rideEntry} ride - Ride object to calculate missing values for
- * @returns {rideEntry} - Ride object with missing values calculated
- */
-function calculateMissingRideValues(ride) {}
+function calculateMissingRideValuesArray(rides) {
+	for (let ride of rides) {
+		ride = calculateMissingRideValues(ride);
+	}
+	return rides;
+}
 
 /**
  * Classfies an array of rides into different types
@@ -146,7 +109,12 @@ function calculateMissingRideValues(ride) {}
  * @param {Number} ftp - Rider's FTP
  * @returns {Array} - Array of classified rides
  */
-function getRideTypeArray(rides, ftp) {}
+function getRideTypeArray(rides, ftp) {
+	for (let ride of rides) {
+		ride.workout_type = getRideType(ride, ftp);
+	}
+	return rides;
+}
 
 /**
  * Main function for the classifier script
