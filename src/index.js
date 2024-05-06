@@ -88,20 +88,6 @@ async function refactorRides(rides) {
 /**
  * Calculates the missing values for an array of rides
  *
- * Missing values include:
- * - average_watts_uphill
- * - average_watts_downhill
- * - average_watts_flat
- * - average_speed_uphill
- * - average_speed_downhill
- * - average_speed_flat
- * - percent_up
- * - percent_down
- * - percent_flat
- * - average_uphill_gradient
- * - hills
- * - workout_type
- *
  * @param {Array} rides - Array of rides to calculate missing values for
  * @returns {Array} - Array of rides with missing values calculated
  */
