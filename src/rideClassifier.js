@@ -212,13 +212,32 @@ function getAverageUphillGradient(ride) {
 }
 
 /**
- * Finds hills in a ride and adds them to the ride object
+ * Finds hills (both up and down) in a ride and adds them to the ride object
  *
  * @param {rideEntry} ride - Ride object to find hills from
  * @returns {Array} - Array of hillEntries found in the ride
  */
 function findHills(ride) {
 	let hills = [];
+
+	/**
+	 * Algorithm to find hills:
+	 * - Set a minimum grade for hills (3%)
+	 * - Set a minimum distance for hills (100m)
+	 * - Iterate through the altitude stream
+	 * 		- At each point, check if the grade between the point 100m away is
+	 * 		  greater than the minimum grade
+	 * 		- If it is, store the idx of that point
+	 *  	- Iterate through rest of points until the grade between points
+	 * 		  flattens
+	 * 			- Store this point and keep looking
+	 * 			- If grade begins to go down or stays flat for 500m,
+	 * 			  store this point as the end of the hill
+	 * 		    - If not, keep looking
+	 * - Calculate the distance, elevation gain, average gradient,
+	 *   average speed, and average watts for each hill
+	 * - Repreat for downhills
+	 */
 
 	return hills;
 }
