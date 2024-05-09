@@ -21,6 +21,8 @@
 		"dotenv": "^16.4.5",
 		"node-fetch": "^2.7.0",
 		"nodeplotlib": "^1.1.2",
-		"strava-v3": "^2.2.0"
+		"sharp": "^0.33.3",
+		"strava-v3": "^2.2.0",
+		"vega": "^5.28.0"
 	}
 }
