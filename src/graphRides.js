@@ -2,8 +2,10 @@
 var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
+const { rideEntry, typeOfRide } = require("./rideClassifier.js");
 
-var lineChartSpec = {
+// define a line chart
+const lineChartSpec = {
 	$schema: "https://vega.github.io/schema/vega/v5.json",
 	description: "A basic line chart example.",
 	width: 500,
@@ -34,18 +36,7 @@ var lineChartSpec = {
 	data: [
 		{
 			name: "table",
-			values: [
-				{ x: 0, y: 28, c: 0 },
-				{ x: 1, y: 43, c: 0 },
-				{ x: 2, y: 81, c: 0 },
-				{ x: 3, y: 19, c: 0 },
-				{ x: 4, y: 52, c: 0 },
-				{ x: 5, y: 24, c: 0 },
-				{ x: 6, y: 87, c: 0 },
-				{ x: 7, y: 17, c: 0 },
-				{ x: 8, y: 68, c: 0 },
-				{ x: 9, y: 49, c: 0 },
-			],
+			values: [],
 		},
 	],
 
@@ -112,19 +103,44 @@ var lineChartSpec = {
 	],
 };
 
-// create a new view instance for a given Vega JSON spec
-var view = new vega.View(vega.parse(lineChartSpec))
-	.renderer("none")
-	.initialize();
+const dataPointSpec = {
+	x: 0,
+	y: 0,
+	c: 0,
+};
 
-// generate static PNG file from chart
-view.toSVG()
-	.then(async function (svg) {
-		await sharp(Buffer.from(svg))
-			.toFormat("png")
-			.toFile("../rideGraphs/rideAltitude.png");
-	})
-	.catch(function (err) {
-		console.error(err);
-	});
-// END vega-demo.js
+/**
+ * Writes a PNG file with the alttiude graph of the given ride
+ *
+ * @param {rideEntry} ride - Ride object to be graphed
+ */
+function drawRideAltitude(ride) {
+	// Clone a new spec for the ride chart
+	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
+
+	for (altitudeValue in ride.altitude_stream) {
+		let dataPoint = JSON.parse(JSON.stringify(dataPointSpec));
+		dataPoint.x = ride.distance_stream[altitudeValue];
+		dataPoint.y = ride.altitude_stream[altitudeValue];
+		dataPoint.c = 0;
+		rideChartSpec.data[0].values.push(dataPoint);
+	}
+
+	// create a new view instance for a given Vega JSON spec
+	var view = new vega.View(vega.parse(lineChartSpec))
+		.renderer("none")
+		.initialize();
+
+	// generate static PNG file from chart
+	view.toSVG()
+		.then(async function (svg) {
+			await sharp(Buffer.from(svg))
+				.toFormat("png")
+				.toFile(`../rideGraphs/${ride.name}AltitudeGraph.png`);
+		})
+		.catch(function (err) {
+			console.error(err);
+		});
+}
+
+module.exports = { drawRideAltitude };

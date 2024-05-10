@@ -1,10 +1,11 @@
 const fs = require("fs");
 const api = require("./stravaAPI.js");
-import {
+const {
 	rideEntry,
 	typeOfRide,
 	calculateMissingRideValues,
-} from "./rideEntry.js";
+} = require("./rideClassifier.js");
+const { drawRideAltitude } = require("./graphRides.js");
 
 /**
  * Retuns an array of num activities
@@ -118,6 +119,7 @@ async function main() {
 
 	let activites = await getNumActivites(num);
 	activites = await refactorRides(activites);
+	drawRideAltitude(activites[0]);
 	activites = calculateMissingRideValuesArray(activites, ftp);
 
 	try {
@@ -129,4 +131,4 @@ async function main() {
 	}
 }
 
-//main();
+main();
