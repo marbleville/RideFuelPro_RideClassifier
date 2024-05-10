@@ -3,13 +3,14 @@ var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
 const { rideEntry, typeOfRide } = require("./rideClassifier.js");
+const { title } = require("process");
 
 // define a line chart
 const lineChartSpec = {
 	$schema: "https://vega.github.io/schema/vega/v5.json",
 	description: "A basic line chart example.",
-	width: 500,
-	height: 200,
+	width: 1920,
+	height: 540,
 	padding: 5,
 
 	signals: [
@@ -64,8 +65,29 @@ const lineChartSpec = {
 	],
 
 	axes: [
-		{ orient: "bottom", scale: "x" },
-		{ orient: "left", scale: "y" },
+		{
+			orient: "bottom",
+			scale: "x",
+			title: "Distance (m)",
+			titleFontSize: 50,
+			titleColor: "steelblue",
+			tickCount: 100,
+			tickMinStep: 1000,
+			labelFontSize: 20,
+			labelColor: "lightgrey",
+			labelOverlap: "parity",
+		},
+		{
+			orient: "left",
+			scale: "y",
+			title: "Altitude (m)",
+			titleFontSize: 50,
+			titleColor: "steelblue",
+			tickCount: 50,
+			tickMinStep: 10,
+			labelFontSize: 20,
+			labelColor: "lightgrey",
+		},
 	],
 
 	marks: [
@@ -106,11 +128,12 @@ const lineChartSpec = {
 const dataPointSpec = {
 	x: 0,
 	y: 0,
-	c: 0,
 };
 
 /**
  * Writes a PNG file with the alttiude graph of the given ride
+ *
+ * TODO: Add section hilighting to show selected hills.
  *
  * @param {rideEntry} ride - Ride object to be graphed
  */
@@ -118,21 +141,20 @@ function drawRideAltitude(ride) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
 
-	for (altitudeValue in ride.altitude_stream) {
-		let dataPoint = JSON.parse(JSON.stringify(dataPointSpec));
-		dataPoint.x = ride.distance_stream[altitudeValue];
-		dataPoint.y = ride.altitude_stream[altitudeValue];
-		dataPoint.c = 0;
+	for (let i = 0; i < ride.altitude_stream.data.length; i++) {
+		let dataPoint = Object.create(dataPointSpec);
+		dataPoint.x = ride.distance_stream.data[i];
+		dataPoint.y = ride.altitude_stream.data[i];
 		rideChartSpec.data[0].values.push(dataPoint);
 	}
 
 	// create a new view instance for a given Vega JSON spec
-	var view = new vega.View(vega.parse(lineChartSpec))
+	var view = new vega.View(vega.parse(rideChartSpec))
 		.renderer("none")
 		.initialize();
 
 	// generate static PNG file from chart
-	view.toSVG()
+	view.toSVG(1)
 		.then(async function (svg) {
 			await sharp(Buffer.from(svg))
 				.toFormat("png")
