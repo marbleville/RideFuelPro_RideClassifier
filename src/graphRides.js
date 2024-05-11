@@ -2,7 +2,7 @@
 var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
-const { rideEntry, typeOfRide } = require("./rideClassifier.js");
+const { rideEntry, hillEntry } = require("./rideClassifier.js");
 const { title } = require("process");
 
 // define a line chart
@@ -100,11 +100,11 @@ const lineChartSpec = {
 			from: { data: "hills" },
 			encode: {
 				enter: {
-					x: { scale: "x", field: "xStart" },
-					x2: { field: "xEnd" },
+					x: { field: "xStart" },
 					y: { value: 0 },
-					y2: { value: 540 },
-					fill: { value: "steelblue" },
+					height: { value: 540 },
+					width: { field: "xEnd" },
+					fill: { field: "color" },
 					fillOpacity: { value: 0.5 },
 				},
 			},
@@ -151,19 +151,20 @@ const dataPointSpec = {
 const hillSpec = {
 	xStart: 0,
 	xEnd: 0,
+	color: "red",
 };
 
 /**
  * Writes a PNG file with the alttiude graph of the given ride
  *
- * TODO: Add section hilighting to show selected hills.
- *
  * @param {rideEntry} ride - Ride object to be graphed
+ * @param {Array<hillEntry>} hills - Array of hills to be highlighted
  */
-function drawRideAltitude(ride) {
+function drawRideAltitude(ride, hills) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
 
+	// Set each altitude and distance data point
 	for (let i = 0; i < ride.altitude_stream.data.length; i++) {
 		let dataPoint = Object.create(dataPointSpec);
 		dataPoint.x = ride.distance_stream.data[i];
@@ -173,13 +174,13 @@ function drawRideAltitude(ride) {
 
 	// Add a test hill to the chart
 	let hill = Object.create(hillSpec);
-	hill.xStart = 0;
+	hill.xStart = 50;
 	hill.xEnd = 100;
 	rideChartSpec.data[1].values.push(hill);
 
 	let hill2 = Object.create(hillSpec);
-	hill2.xStart = 200;
-	hill2.xEnd = 300;
+	hill2.xStart = 500;
+	hill2.xEnd = 700;
 	rideChartSpec.data[1].values.push(hill2);
 
 	// create a new view instance for a given Vega JSON spec
@@ -192,7 +193,11 @@ function drawRideAltitude(ride) {
 		.then(async function (svg) {
 			await sharp(Buffer.from(svg))
 				.toFormat("png")
-				.toFile(`../rideGraphs/${ride.name}AltitudeGraph.png`);
+				.toFile(
+					`../rideGraphs/${ride.name
+						.split(" ")
+						.join("-")}AltitudeGraph.png`
+				);
 		})
 		.catch(function (err) {
 			console.error(err);

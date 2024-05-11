@@ -245,5 +245,6 @@ function findHills(ride) {
 module.exports = {
 	rideEntry,
 	typeOfRide,
+	hillEntry,
 	calculateMissingRideValues,
 };
