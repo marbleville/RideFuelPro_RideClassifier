@@ -2,12 +2,15 @@
 var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
+const { rideEntry, hillEntry } = require("./rideClassifier.js");
+const { title } = require("process");
 
-var lineChartSpec = {
+// define a line chart
+const lineChartSpec = {
 	$schema: "https://vega.github.io/schema/vega/v5.json",
 	description: "A basic line chart example.",
-	width: 500,
-	height: 200,
+	width: 1920,
+	height: 540,
 	padding: 5,
 
 	signals: [
@@ -34,18 +37,11 @@ var lineChartSpec = {
 	data: [
 		{
 			name: "table",
-			values: [
-				{ x: 0, y: 28, c: 0 },
-				{ x: 1, y: 43, c: 0 },
-				{ x: 2, y: 81, c: 0 },
-				{ x: 3, y: 19, c: 0 },
-				{ x: 4, y: 52, c: 0 },
-				{ x: 5, y: 24, c: 0 },
-				{ x: 6, y: 87, c: 0 },
-				{ x: 7, y: 17, c: 0 },
-				{ x: 8, y: 68, c: 0 },
-				{ x: 9, y: 49, c: 0 },
-			],
+			values: [],
+		},
+		{
+			name: "hills",
+			values: [],
 		},
 	],
 
@@ -73,11 +69,46 @@ var lineChartSpec = {
 	],
 
 	axes: [
-		{ orient: "bottom", scale: "x" },
-		{ orient: "left", scale: "y" },
+		{
+			orient: "bottom",
+			scale: "x",
+			title: "Distance (m)",
+			titleFontSize: 50,
+			titleColor: "steelblue",
+			tickCount: 100,
+			tickMinStep: 1000,
+			labelFontSize: 20,
+			labelColor: "lightgrey",
+			labelOverlap: "parity",
+		},
+		{
+			orient: "left",
+			scale: "y",
+			title: "Altitude (m)",
+			titleFontSize: 50,
+			titleColor: "steelblue",
+			tickCount: 50,
+			tickMinStep: 10,
+			labelFontSize: 20,
+			labelColor: "lightgrey",
+		},
 	],
 
 	marks: [
+		{
+			type: "rect",
+			from: { data: "hills" },
+			encode: {
+				enter: {
+					x: { field: "xStart" },
+					y: { value: 0 },
+					height: { value: 540 },
+					width: { field: "xEnd" },
+					fill: { field: "color" },
+					fillOpacity: { value: 0.5 },
+				},
+			},
+		},
 		{
 			type: "group",
 			from: {
@@ -112,19 +143,62 @@ var lineChartSpec = {
 	],
 };
 
-// create a new view instance for a given Vega JSON spec
-var view = new vega.View(vega.parse(lineChartSpec))
-	.renderer("none")
-	.initialize();
+const dataPointSpec = {
+	x: 0,
+	y: 0,
+};
 
-// generate static PNG file from chart
-view.toSVG()
-	.then(async function (svg) {
-		await sharp(Buffer.from(svg))
-			.toFormat("png")
-			.toFile("../rideGraphs/rideAltitude.png");
-	})
-	.catch(function (err) {
-		console.error(err);
-	});
-// END vega-demo.js
+const hillSpec = {
+	xStart: 0,
+	xEnd: 0,
+	color: "red",
+};
+
+/**
+ * Writes a PNG file with the alttiude graph of the given ride
+ *
+ * @param {rideEntry} ride - Ride object to be graphed
+ */
+function drawRideAltitude(ride) {
+	// Clone a new spec for the ride chart
+	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
+
+	// Set each altitude and distance data point
+	for (let i = 0; i < ride.altitude_stream.data.length; i++) {
+		let dataPoint = Object.create(dataPointSpec);
+		dataPoint.x = ride.distance_stream.data[i];
+		dataPoint.y = ride.altitude_stream.data[i];
+		rideChartSpec.data[0].values.push(dataPoint);
+	}
+
+	// Add hills to the chart
+	for (let hillEntry of ride.hills) {
+		let hill = Object.create(hillSpec);
+		hill.xStart = ride.distance_stream.data[hillEntry.idxStart];
+		hill.xEnd = ride.distance_stream.data[hillEntry.idxEnd];
+		hill.color = hillEntry.averageGradient > 0 ? "red" : "green";
+		rideChartSpec.data[1].values.push(hill);
+	}
+
+	// create a new view instance for a given Vega JSON spec
+	var view = new vega.View(vega.parse(rideChartSpec))
+		.renderer("none")
+		.initialize();
+
+	// generate static PNG file from chart
+	view.toSVG(1)
+		.then(async function (svg) {
+			await sharp(Buffer.from(svg))
+				.toFormat("png")
+				.toFile(
+					`../rideGraphs/${ride.name
+						.split(" ")
+						.join("-")}AltitudeGraph.png`
+				);
+		})
+		.catch(function (err) {
+			console.error(err);
+		});
+}
+
+module.exports = { drawRideAltitude };

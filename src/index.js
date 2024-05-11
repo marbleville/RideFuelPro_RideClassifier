@@ -1,10 +1,11 @@
 const fs = require("fs");
 const api = require("./stravaAPI.js");
-import {
+const {
 	rideEntry,
 	typeOfRide,
 	calculateMissingRideValues,
-} from "./rideEntry.js";
+} = require("./rideClassifier.js");
+const { drawRideAltitude } = require("./graphRides.js");
 
 /**
  * Retuns an array of num activities
@@ -121,7 +122,10 @@ async function main() {
 	activites = calculateMissingRideValuesArray(activites, ftp);
 
 	try {
-		fs.writeFileSync("activites.json", JSON.stringify(activites));
+		fs.writeFileSync(
+			"../resources/activites.json",
+			JSON.stringify(activites)
+		);
 		return 0;
 	} catch (error) {
 		console.error(error);
@@ -129,4 +133,14 @@ async function main() {
 	}
 }
 
-//main();
+// function testRideGraphing() {
+// 	try {
+// 		const data = fs.readFileSync("../resources/activites.json", "utf8");
+// 		let rides = JSON.parse(data);
+// 		drawRideAltitude(rides[0]);
+// 	} catch (err) {
+// 		console.error(err);
+// 	}
+// }
+
+main();

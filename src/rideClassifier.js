@@ -167,7 +167,7 @@ function getDownhillSpeed(ride) {
  * @param {rideEntry} ride - Ride object to calculate uphill speed from
  * @returns {Number} - Average speed for flat sections in meters per second
  */
-function getUphillSpeed(ride) {
+function getFlatSpeed(ride) {
 	return 0;
 }
 
@@ -242,8 +242,9 @@ function findHills(ride) {
 	return hills;
 }
 
-export default {
+module.exports = {
 	rideEntry,
 	typeOfRide,
+	hillEntry,
 	calculateMissingRideValues,
 };
