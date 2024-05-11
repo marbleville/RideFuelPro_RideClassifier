@@ -39,6 +39,10 @@ const lineChartSpec = {
 			name: "table",
 			values: [],
 		},
+		{
+			name: "hills",
+			values: [],
+		},
 	],
 
 	scales: [
@@ -92,6 +96,20 @@ const lineChartSpec = {
 
 	marks: [
 		{
+			type: "rect",
+			from: { data: "hills" },
+			encode: {
+				enter: {
+					x: { scale: "x", field: "xStart" },
+					x2: { field: "xEnd" },
+					y: { value: 0 },
+					y2: { value: 540 },
+					fill: { value: "steelblue" },
+					fillOpacity: { value: 0.5 },
+				},
+			},
+		},
+		{
 			type: "group",
 			from: {
 				facet: {
@@ -130,6 +148,11 @@ const dataPointSpec = {
 	y: 0,
 };
 
+const hillSpec = {
+	xStart: 0,
+	xEnd: 0,
+};
+
 /**
  * Writes a PNG file with the alttiude graph of the given ride
  *
@@ -147,6 +170,17 @@ function drawRideAltitude(ride) {
 		dataPoint.y = ride.altitude_stream.data[i];
 		rideChartSpec.data[0].values.push(dataPoint);
 	}
+
+	// Add a test hill to the chart
+	let hill = Object.create(hillSpec);
+	hill.xStart = 0;
+	hill.xEnd = 100;
+	rideChartSpec.data[1].values.push(hill);
+
+	let hill2 = Object.create(hillSpec);
+	hill2.xStart = 200;
+	hill2.xEnd = 300;
+	rideChartSpec.data[1].values.push(hill2);
 
 	// create a new view instance for a given Vega JSON spec
 	var view = new vega.View(vega.parse(rideChartSpec))
