@@ -204,6 +204,10 @@ function getAverageUphillGradient(ride) {
  * @returns {Array} - Array of hillEntries found in the ride
  */
 function findHills(ride) {
+	const MIN_GRADE = 0.03;
+	const MIN_DISTANCE = 100;
+	const MAX_FALSE_FLAT_DISTANCE = 500;
+
 	let hills = [];
 
 	/**
@@ -226,6 +230,28 @@ function findHills(ride) {
 	 */
 
 	return hills;
+}
+
+/**
+ * Returns the index of the altitude stream that is 100m ahead of the current
+ * idx or -1 if the end of the stream is reached before 100m
+ *
+ * @param {rideEntry} ride - Ride object to find idx from
+ * @param {Number} currentIdx - Current index in the ride to find the idx of
+ * 								100m ahead
+ * @returns {Number} - Index of the altitude stream 100m ahead of the current
+ * 					   index
+ */
+function getIdxOf100MetersAhead(ride, currentIdx) {
+	let currentDistance = ride.distance_stream[currentIdx];
+
+	for (let i = currentIdx; i < ride.distance_stream.length; i++) {
+		if (ride.distance_stream[i] - currentDistance >= 100) {
+			return i;
+		}
+	}
+
+	return -1;
 }
 
 module.exports = {
