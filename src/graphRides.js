@@ -158,9 +158,8 @@ const hillSpec = {
  * Writes a PNG file with the alttiude graph of the given ride
  *
  * @param {rideEntry} ride - Ride object to be graphed
- * @param {Array<hillEntry>} hills - Array of hills to be highlighted
  */
-function drawRideAltitude(ride, hills) {
+function drawRideAltitude(ride) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
 
@@ -172,16 +171,14 @@ function drawRideAltitude(ride, hills) {
 		rideChartSpec.data[0].values.push(dataPoint);
 	}
 
-	// Add a test hill to the chart
-	let hill = Object.create(hillSpec);
-	hill.xStart = 50;
-	hill.xEnd = 100;
-	rideChartSpec.data[1].values.push(hill);
-
-	let hill2 = Object.create(hillSpec);
-	hill2.xStart = 500;
-	hill2.xEnd = 700;
-	rideChartSpec.data[1].values.push(hill2);
+	// Add hills to the chart
+	for (let hillEntry of ride.hills) {
+		let hill = Object.create(hillSpec);
+		hill.xStart = ride.distance_stream.data[hillEntry.idxStart];
+		hill.xEnd = ride.distance_stream.data[hillEntry.idxEnd];
+		hill.color = hillEntry.averageGradient > 0 ? "red" : "green";
+		rideChartSpec.data[1].values.push(hill);
+	}
 
 	// create a new view instance for a given Vega JSON spec
 	var view = new vega.View(vega.parse(rideChartSpec))
