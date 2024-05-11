@@ -119,7 +119,6 @@ async function main() {
 
 	let activites = await getNumActivites(num);
 	activites = await refactorRides(activites);
-	//drawRideAltitude(activites[0]);
 	activites = calculateMissingRideValuesArray(activites, ftp);
 
 	try {
@@ -134,15 +133,14 @@ async function main() {
 	}
 }
 
-function testRideGraphing() {
-	try {
-		const data = fs.readFileSync("../resources/activites.json", "utf8");
-		let rides = JSON.parse(data);
-		drawRideAltitude(rides[0]);
-	} catch (err) {
-		console.error(err);
-	}
-}
+// function testRideGraphing() {
+// 	try {
+// 		const data = fs.readFileSync("../resources/activites.json", "utf8");
+// 		let rides = JSON.parse(data);
+// 		drawRideAltitude(rides[0]);
+// 	} catch (err) {
+// 		console.error(err);
+// 	}
+// }
 
-testRideGraphing();
-//main();
+main();
