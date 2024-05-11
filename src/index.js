@@ -133,14 +133,15 @@ async function main() {
 	}
 }
 
-// function testRideGraphing() {
-// 	try {
-// 		const data = fs.readFileSync("../resources/activites.json", "utf8");
-// 		let rides = JSON.parse(data);
-// 		drawRideAltitude(rides[0]);
-// 	} catch (err) {
-// 		console.error(err);
-// 	}
-// }
+function testFindHills() {
+	try {
+		const data = fs.readFileSync("../resources/activites.json", "utf8");
+		let rides = JSON.parse(data);
+		drawRideAltitude(findHills(rides[0]));
+	} catch (err) {
+		console.error(err);
+	}
+}
 
-main();
+//main();
+testFindHills();

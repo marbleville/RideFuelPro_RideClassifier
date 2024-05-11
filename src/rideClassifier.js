@@ -48,20 +48,6 @@ let rideEntry = {
 };
 
 /**
- * Classfies an array of rides into different types
- *
- * @param {Array} rides - Array of rides to be classified
- * @param {Number} ftp - Rider's FTP
- * @returns {Array} - Array of classified rides
- */
-function getRideTypeArray(rides, ftp) {
-	for (let ride of rides) {
-		ride.workout_type = getRideType(ride, ftp);
-	}
-	return rides;
-}
-
-/**
  * Returns the type of ride based on the rideEntry object
  *
  * @param {rideEntry} ride - Ride object to be classfied
@@ -247,4 +233,5 @@ module.exports = {
 	typeOfRide,
 	hillEntry,
 	calculateMissingRideValues,
+	findHills,
 };
