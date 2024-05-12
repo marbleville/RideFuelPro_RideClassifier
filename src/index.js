@@ -4,6 +4,7 @@ const {
 	rideEntry,
 	typeOfRide,
 	calculateMissingRideValues,
+	findHills,
 } = require("./rideClassifier.js");
 const { drawRideAltitude } = require("./graphRides.js");
 
@@ -137,7 +138,8 @@ function testFindHills() {
 	try {
 		const data = fs.readFileSync("../resources/activites.json", "utf8");
 		let rides = JSON.parse(data);
-		drawRideAltitude(findHills(rides[0]));
+		rides[0].hills = findHills(rides[0]);
+		drawRideAltitude(rides[0]);
 	} catch (err) {
 		console.error(err);
 	}

@@ -174,8 +174,13 @@ function drawRideAltitude(ride) {
 	// Add hills to the chart
 	for (let hillEntry of ride.hills) {
 		let hill = Object.create(hillSpec);
-		hill.xStart = ride.distance_stream.data[hillEntry.idxStart];
-		hill.xEnd = ride.distance_stream.data[hillEntry.idxEnd];
+
+		// Convert the indexes of the hills to x values in pixels
+		let hillStartMeters = ride.distance_stream.data[hillEntry.idxStart];
+		let hillEndMeters = ride.distance_stream.data[hillEntry.idxEnd];
+		hill.xStart = (hillStartMeters / ride.distance) * 1920;
+		hill.xEnd = (hillEndMeters / ride.distance) * 1920;
+
 		hill.color = hillEntry.averageGradient > 0 ? "red" : "green";
 		rideChartSpec.data[1].values.push(hill);
 	}
