@@ -230,7 +230,7 @@ function findHills(ride) {
 	 *   average speed, and average watts for each hill
 	 * - Repeat for downhills
 	 */
-	for (let i = 0; i < ride.altitude_stream.data.length; i++) {
+	for (let i = 0; i < ride.distance_stream.data.length; i++) {
 		let hillStart = i;
 		let idxMinDistMetersAhead = getIdxOfPointXMetersAhead(
 			ride,
@@ -261,7 +261,7 @@ function findHills(ride) {
 		// Search hill in 50m increments
 		for (
 			let j = idxMinDistMetersAhead;
-			!hillEndFound;
+			!hillEndFound && j < ride.distance_stream.data.length;
 			j += getIdxOfPointXMetersAhead(ride, j, 50)
 		) {
 			let segmentGrade =
@@ -285,17 +285,22 @@ function findHills(ride) {
 				j,
 				MAX_FALSE_FLAT_DISTANCE
 			);
-			let idx250MetersAhead = getIdxOfPointXMetersAhead(ride, j, 250);
+			let idxNextSegment = getIdxOfPointXMetersAhead(
+				ride,
+				j,
+				MAX_FALSE_FLAT_DISTANCE + 50
+			);
 
 			// Calculate the grade of the 50m segment 200m ahead
-			let segmentGrade200Meters =
+			let nextSegmentGrade =
 				(ride.altitude_stream.data[idxFALSEFLATMetersAhead] -
-					ride.altitude_stream.data[idx250MetersAhead]) /
+					ride.altitude_stream.data[idxNextSegment]) /
 				(ride.distance_stream.data[idxFALSEFLATMetersAhead] -
-					ride.distance_stream.data[idx250MetersAhead]);
+					ride.distance_stream.data[idxNextSegment]);
 
 			// If the grade is steep enough, continue
-			if (segmentGrade200Meters >= MIN_GRADE) {
+			if (nextSegmentGrade >= MIN_GRADE) {
+				j = idxNextSegment;
 				continue;
 			}
 
@@ -309,8 +314,12 @@ function findHills(ride) {
 			hill.idxEnd = hillEndIdx;
 
 			hills.push(hill);
+
+			i += j;
 		}
 	}
+
+	console.log(hills);
 	return hills;
 }
 

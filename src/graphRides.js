@@ -103,7 +103,7 @@ const lineChartSpec = {
 					x: { field: "xStart" },
 					y: { value: 0 },
 					height: { value: 540 },
-					width: { field: "xEnd" },
+					width: { field: "xWidth" },
 					fill: { field: "color" },
 					fillOpacity: { value: 0.5 },
 				},
@@ -150,7 +150,7 @@ const dataPointSpec = {
 
 const hillSpec = {
 	xStart: 0,
-	xEnd: 0,
+	xWidth: 0,
 	color: "red",
 };
 
@@ -178,8 +178,10 @@ function drawRideAltitude(ride) {
 		// Convert the indexes of the hills to x values in pixels
 		let hillStartMeters = ride.distance_stream.data[hillEntry.idxStart];
 		let hillEndMeters = ride.distance_stream.data[hillEntry.idxEnd];
+		let widthMeters = hillEndMeters - hillStartMeters;
+
 		hill.xStart = (hillStartMeters / ride.distance) * 1920;
-		hill.xEnd = (hillEndMeters / ride.distance) * 1920;
+		hill.xWidth = (widthMeters / ride.distance) * 1920;
 
 		hill.color = hillEntry.averageGradient > 0 ? "red" : "green";
 		rideChartSpec.data[1].values.push(hill);
