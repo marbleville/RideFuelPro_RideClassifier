@@ -206,8 +206,8 @@ function getAverageUphillGradient(ride) {
  * @returns {Array} - Array of hillEntries found in the ride
  */
 function findHills(ride) {
-	const MIN_GRADE = 0.02;
-	const MIN_DISTANCE = 100;
+	const MIN_GRADE = 0.03;
+	const MIN_DISTANCE = 200;
 	const MAX_FALSE_FLAT_DISTANCE = 200;
 
 	let hills = [];
@@ -280,7 +280,6 @@ function findHills(ride) {
 			}
 
 			// Check for false flat
-			/*
 			let idxFALSEFLATMetersAhead = getIdxOfPointXMetersAhead(
 				ride,
 				j,
@@ -304,7 +303,6 @@ function findHills(ride) {
 				j = idxNextSegment;
 				continue;
 			}
-			*/
 
 			// If the grade is not steep enough, end the hill
 			hillEndFound = true;
@@ -323,20 +321,20 @@ function findHills(ride) {
 
 			hills.push(hill);
 
-			i += j;
+			i = hillEndIdx;
 		}
 	}
 
-	hills.map((e) => {
-		console.log(
-			`Start: ${ride.distance_stream.data[e.idxStart]}, End: ${
-				ride.distance_stream.data[e.idxEnd]
-			}, Distance: ${
-				ride.distance_stream.data[e.idxEnd] -
-				ride.distance_stream.data[e.idxStart]
-			}, Grade: ${e.averageGradient}`
-		);
-	});
+	// hills.map((e) => {
+	// 	console.log(
+	// 		`Start: ${ride.distance_stream.data[e.idxStart]}, End: ${
+	// 			ride.distance_stream.data[e.idxEnd]
+	// 		}, Distance: ${
+	// 			ride.distance_stream.data[e.idxEnd] -
+	// 			ride.distance_stream.data[e.idxStart]
+	// 		}, Grade: ${e.averageGradient}`
+	// 	);
+	// });
 	return hills;
 }
 
