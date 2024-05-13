@@ -288,8 +288,8 @@ function findHills(ride, setting) {
 			// End of hill not found yet
 			if (
 				setting === "uphill"
-					? startGrade <= MIN_GRADE
-					: startGrade >= -MIN_GRADE
+					? segmentGrade >= MIN_GRADE
+					: segmentGrade <= -MIN_GRADE
 			) {
 				continue;
 			}
@@ -316,8 +316,8 @@ function findHills(ride, setting) {
 			// If the grade is steep enough, continue
 			if (
 				setting === "uphill"
-					? startGrade <= MIN_GRADE
-					: startGrade >= -MIN_GRADE
+					? nextSegmentGrade >= MIN_GRADE
+					: nextSegmentGrade <= -MIN_GRADE
 			) {
 				j = idxNextSegment;
 				continue;
