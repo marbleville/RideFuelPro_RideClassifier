@@ -206,9 +206,10 @@ function getAverageUphillGradient(ride) {
  * @returns {Array} - Array of hillEntries found in the ride
  */
 function findHills(ride) {
-	const MIN_GRADE = 0.03;
-	const MIN_DISTANCE = 200;
+	const MIN_GRADE = 0.02;
+	const MIN_DISTANCE = 300;
 	const MAX_FALSE_FLAT_DISTANCE = 200;
+	const SEARCH_INCREMENT = 50;
 
 	let hills = [];
 
@@ -230,7 +231,11 @@ function findHills(ride) {
 	 *   average speed, and average watts for each hill
 	 * - Repeat for downhills
 	 */
-	for (let i = 0; i < ride.distance_stream.data.length; i++) {
+	for (
+		let i = 0;
+		i < ride.distance_stream.data.length;
+		i = getIdxOfPointXMetersAhead(ride, i, SEARCH_INCREMENT)
+	) {
 		let hillStart = i;
 		let idxMinDistMetersAhead = getIdxOfPointXMetersAhead(
 			ride,
@@ -262,7 +267,7 @@ function findHills(ride) {
 		for (
 			let j = idxMinDistMetersAhead;
 			!hillEndFound && j < ride.distance_stream.data.length;
-			j = getIdxOfPointXMetersAhead(ride, j, 50)
+			j = getIdxOfPointXMetersAhead(ride, j, SEARCH_INCREMENT)
 		) {
 			let segmentGrade =
 				(ride.altitude_stream.data[
