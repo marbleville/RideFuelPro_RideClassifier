@@ -134,18 +134,16 @@ async function main() {
 	}
 }
 
-function testFindHills() {
+function testCalculateMissingRideValuesArray() {
 	try {
 		const data = fs.readFileSync("../resources/activites.json", "utf8");
 		let rides = JSON.parse(data);
-		rides[0].hills = findHills(rides[0], "uphill").concat(
-			findHills(rides[0], "downhill")
-		);
-		drawRideAltitude(rides[0]);
+		calculateMissingRideValuesArray(rides, 250);
+		console.log(rides);
 	} catch (err) {
 		console.error(err);
 	}
 }
 
 //main();
-testFindHills();
+testCalculateMissingRideValuesArray();

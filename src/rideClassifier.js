@@ -81,7 +81,7 @@ function getRideType(ride, ftp) {
  * @returns {rideEntry} - Ride object with missing values calculated
  */
 function calculateMissingRideValues(ride, ftp) {
-	ride.hills = findHills(ride);
+	ride.hills = findHills(ride, "uphill").concat(findHills(ride, "downhill"));
 
 	ride.average_watts_uphill = getUphillWatts(ride);
 	ride.average_watts_downhill = getDownhillWatts(ride);
