@@ -138,7 +138,9 @@ function testFindHills() {
 	try {
 		const data = fs.readFileSync("../resources/activites.json", "utf8");
 		let rides = JSON.parse(data);
-		rides[0].hills = findHills(rides[0]);
+		rides[0].hills = findHills(rides[0], "uphill").concat(
+			findHills(rides[0], "downhill")
+		);
 		drawRideAltitude(rides[0]);
 	} catch (err) {
 		console.error(err);

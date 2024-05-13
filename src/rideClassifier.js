@@ -203,9 +203,11 @@ function getAverageUphillGradient(ride) {
  * Finds hills (both up and down) in a ride and adds them to the ride object
  *
  * @param {rideEntry} ride - Ride object to find hills from
+ * @param {String} setting - "uphill" or "downhill" to find up or down hills
+ *
  * @returns {Array} - Array of hillEntries found in the ride
  */
-function findHills(ride) {
+function findHills(ride, setting) {
 	const MIN_GRADE = 0.02;
 	const MIN_DISTANCE = 300;
 	const MAX_FALSE_FLAT_DISTANCE = 200;
@@ -215,8 +217,8 @@ function findHills(ride) {
 
 	/**
 	 * Algorithm to find hills:
-	 * - Set a minimum grade for hills (3%)
-	 * - Set a minimum distance for hills (100m)
+	 * - Set a minimum grade for hills
+	 * - Set a minimum distance for hills
 	 * - Iterate through the altitude stream
 	 * 		- At each point, check if the grade between the point 100m away is
 	 * 		  greater than the minimum grade
@@ -255,7 +257,11 @@ function findHills(ride) {
 			(ride.distance_stream.data[idxMinDistMetersAhead] -
 				ride.distance_stream.data[hillStart]);
 
-		if (startGrade <= MIN_GRADE) {
+		if (
+			setting === "uphill"
+				? startGrade <= MIN_GRADE
+				: startGrade >= -MIN_GRADE
+		) {
 			continue;
 		}
 
@@ -280,7 +286,11 @@ function findHills(ride) {
 					ride.distance_stream.data[j]);
 
 			// End of hill not found yet
-			if (segmentGrade >= MIN_GRADE) {
+			if (
+				setting === "uphill"
+					? startGrade <= MIN_GRADE
+					: startGrade >= -MIN_GRADE
+			) {
 				continue;
 			}
 
@@ -304,7 +314,11 @@ function findHills(ride) {
 					ride.distance_stream.data[idxNextSegment]);
 
 			// If the grade is steep enough, continue
-			if (nextSegmentGrade >= MIN_GRADE) {
+			if (
+				setting === "uphill"
+					? startGrade <= MIN_GRADE
+					: startGrade >= -MIN_GRADE
+			) {
 				j = idxNextSegment;
 				continue;
 			}
