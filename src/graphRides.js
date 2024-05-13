@@ -175,17 +175,17 @@ function drawRideAltitude(ride) {
 	for (let hillEntry of ride.hills) {
 		let hill = Object.create(hillSpec);
 
-		// Convert the indexes of the hills to x values in pixels
-		let hillStartMeters = ride.distance_stream.data[hillEntry.idxStart];
-		let hillEndMeters = ride.distance_stream.data[hillEntry.idxEnd];
-		let widthMeters = hillEndMeters - hillStartMeters;
+		let dataLength = ride.distance_stream.data.length;
+		let widthInIdx = hillEntry.idxEnd - hillEntry.idxStart;
 
-		hill.xStart = (hillStartMeters / ride.distance) * 1920;
-		hill.xWidth = (widthMeters / ride.distance) * 1920;
+		hill.xStart = (hillEntry.idxStart / dataLength) * 1920;
+		hill.xWidth = (widthInIdx / dataLength) * 1920;
 
 		hill.color = hillEntry.averageGradient > 0 ? "red" : "green";
 		rideChartSpec.data[1].values.push(hill);
 	}
+
+	let hill = Object.create(hillSpec);
 
 	// create a new view instance for a given Vega JSON spec
 	var view = new vega.View(vega.parse(rideChartSpec))

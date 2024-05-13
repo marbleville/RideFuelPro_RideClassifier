@@ -206,7 +206,7 @@ function getAverageUphillGradient(ride) {
  * @returns {Array} - Array of hillEntries found in the ride
  */
 function findHills(ride) {
-	const MIN_GRADE = 0.03;
+	const MIN_GRADE = 0.02;
 	const MIN_DISTANCE = 100;
 	const MAX_FALSE_FLAT_DISTANCE = 200;
 
@@ -262,7 +262,7 @@ function findHills(ride) {
 		for (
 			let j = idxMinDistMetersAhead;
 			!hillEndFound && j < ride.distance_stream.data.length;
-			j += getIdxOfPointXMetersAhead(ride, j, 50)
+			j = getIdxOfPointXMetersAhead(ride, j, 50)
 		) {
 			let segmentGrade =
 				(ride.altitude_stream.data[
@@ -280,6 +280,7 @@ function findHills(ride) {
 			}
 
 			// Check for false flat
+			/*
 			let idxFALSEFLATMetersAhead = getIdxOfPointXMetersAhead(
 				ride,
 				j,
@@ -287,7 +288,7 @@ function findHills(ride) {
 			);
 			let idxNextSegment = getIdxOfPointXMetersAhead(
 				ride,
-				j,
+				idxFALSEFLATMetersAhead,
 				MAX_FALSE_FLAT_DISTANCE + 50
 			);
 
@@ -303,6 +304,7 @@ function findHills(ride) {
 				j = idxNextSegment;
 				continue;
 			}
+			*/
 
 			// If the grade is not steep enough, end the hill
 			hillEndFound = true;
@@ -313,13 +315,28 @@ function findHills(ride) {
 			hill.idxStart = hillStart;
 			hill.idxEnd = hillEndIdx;
 
+			hill.averageGradient =
+				(ride.altitude_stream.data[hillEndIdx] -
+					ride.altitude_stream.data[hillStart]) /
+				(ride.distance_stream.data[hillEndIdx] -
+					ride.distance_stream.data[hillStart]);
+
 			hills.push(hill);
 
 			i += j;
 		}
 	}
 
-	console.log(hills);
+	hills.map((e) => {
+		console.log(
+			`Start: ${ride.distance_stream.data[e.idxStart]}, End: ${
+				ride.distance_stream.data[e.idxEnd]
+			}, Distance: ${
+				ride.distance_stream.data[e.idxEnd] -
+				ride.distance_stream.data[e.idxStart]
+			}, Grade: ${e.averageGradient}`
+		);
+	});
 	return hills;
 }
 
@@ -336,10 +353,10 @@ function findHills(ride) {
  * 					   index
  */
 function getIdxOfPointXMetersAhead(ride, currentIdx, distance) {
-	let currentDistance = ride.distance_stream.data[currentIdx];
+	let currentLocation = ride.distance_stream.data[currentIdx];
 
 	for (let i = currentIdx; i < ride.distance_stream.data.length; i++) {
-		if (ride.distance_stream.data[i] - currentDistance >= distance) {
+		if (ride.distance_stream.data[i] - currentLocation >= distance) {
 			return i;
 		}
 	}
