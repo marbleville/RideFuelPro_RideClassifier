@@ -103,7 +103,7 @@ const lineChartSpec = {
 					x: { field: "xStart" },
 					y: { value: 0 },
 					height: { value: 540 },
-					width: { field: "xEnd" },
+					width: { field: "xWidth" },
 					fill: { field: "color" },
 					fillOpacity: { value: 0.5 },
 				},
@@ -150,7 +150,7 @@ const dataPointSpec = {
 
 const hillSpec = {
 	xStart: 0,
-	xEnd: 0,
+	xWidth: 0,
 	color: "red",
 };
 
@@ -174,11 +174,18 @@ function drawRideAltitude(ride) {
 	// Add hills to the chart
 	for (let hillEntry of ride.hills) {
 		let hill = Object.create(hillSpec);
-		hill.xStart = ride.distance_stream.data[hillEntry.idxStart];
-		hill.xEnd = ride.distance_stream.data[hillEntry.idxEnd];
+
+		let dataLength = ride.distance_stream.data.length;
+		let widthInIdx = hillEntry.idxEnd - hillEntry.idxStart;
+
+		hill.xStart = (hillEntry.idxStart / dataLength) * 1920;
+		hill.xWidth = (widthInIdx / dataLength) * 1920;
+
 		hill.color = hillEntry.averageGradient > 0 ? "red" : "green";
 		rideChartSpec.data[1].values.push(hill);
 	}
+
+	let hill = Object.create(hillSpec);
 
 	// create a new view instance for a given Vega JSON spec
 	var view = new vega.View(vega.parse(rideChartSpec))
