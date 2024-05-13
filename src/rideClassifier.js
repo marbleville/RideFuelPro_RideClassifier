@@ -1,3 +1,5 @@
+const { id } = require("vega");
+
 // Object contianing the different types of rides
 const typeOfRide = {
 	intervals: "Intervals",
@@ -206,7 +208,7 @@ function getAverageUphillGradient(ride) {
 function findHills(ride) {
 	const MIN_GRADE = 0.03;
 	const MIN_DISTANCE = 100;
-	const MAX_FALSE_FLAT_DISTANCE = 500;
+	const MAX_FALSE_FLAT_DISTANCE = 200;
 
 	let hills = [];
 
@@ -221,32 +223,114 @@ function findHills(ride) {
 	 *  	- Iterate through rest of points until the grade between points
 	 * 		  flattens
 	 * 			- Store this point and keep looking
-	 * 			- If grade begins to go down or stays flat for 500m,
+	 * 			- If grade begins to go down or stays flat for 200m,
 	 * 			  store this point as the end of the hill
 	 * 		    - If not, keep looking
 	 * - Calculate the distance, elevation gain, average gradient,
 	 *   average speed, and average watts for each hill
-	 * - Repreat for downhills
+	 * - Repeat for downhills
 	 */
+	for (let i = 0; i < ride.altitude_stream.data.length; i++) {
+		let hillStart = i;
+		let idxMinDistMetersAhead = getIdxOfPointXMetersAhead(
+			ride,
+			i,
+			MIN_DISTANCE
+		);
 
+		// If the end of the stream is reached
+		if (idxMinDistMetersAhead === -1) {
+			break;
+		}
+
+		// If the grade is not steep enough, continue
+		let startGrade =
+			(ride.altitude_stream.data[idxMinDistMetersAhead] -
+				ride.altitude_stream.data[hillStart]) /
+			(ride.distance_stream.data[idxMinDistMetersAhead] -
+				ride.distance_stream.data[hillStart]);
+
+		if (startGrade <= MIN_GRADE) {
+			continue;
+		}
+
+		// Find the end of the hill
+		let hillEndFound = false;
+		let hillEndIdx = -1;
+
+		// Search hill in 50m increments
+		for (
+			let j = idxMinDistMetersAhead;
+			!hillEndFound;
+			j += getIdxOfPointXMetersAhead(ride, j, 50)
+		) {
+			let segmentGrade =
+				(ride.altitude_stream.data[
+					getIdxOfPointXMetersAhead(ride, j, 50)
+				] -
+					ride.altitude_stream.data[j]) /
+				(ride.distance_stream.data[
+					getIdxOfPointXMetersAhead(ride, j, 50)
+				] -
+					ride.distance_stream.data[j]);
+
+			// End of hill not found yet
+			if (segmentGrade >= MIN_GRADE) {
+				continue;
+			}
+
+			// Check for false flat
+			let idxFALSEFLATMetersAhead = getIdxOfPointXMetersAhead(
+				ride,
+				j,
+				MAX_FALSE_FLAT_DISTANCE
+			);
+			let idx250MetersAhead = getIdxOfPointXMetersAhead(ride, j, 250);
+
+			// Calculate the grade of the 50m segment 200m ahead
+			let segmentGrade200Meters =
+				(ride.altitude_stream.data[idxFALSEFLATMetersAhead] -
+					ride.altitude_stream.data[idx250MetersAhead]) /
+				(ride.distance_stream.data[idxFALSEFLATMetersAhead] -
+					ride.distance_stream.data[idx250MetersAhead]);
+
+			// If the grade is steep enough, continue
+			if (segmentGrade200Meters >= MIN_GRADE) {
+				continue;
+			}
+
+			// If the grade is not steep enough, end the hill
+			hillEndFound = true;
+			hillEndIdx = j;
+
+			// Push the starts and ends of the hills to the hills array
+			let hill = Object.create(hillEntry);
+			hill.idxStart = hillStart;
+			hill.idxEnd = hillEndIdx;
+
+			hills.push(hill);
+		}
+	}
 	return hills;
 }
 
 /**
- * Returns the index of the altitude stream that is 100m ahead of the current
- * idx or -1 if the end of the stream is reached before 100m
+ * Returns the index of the altitude stream that is the given number of meters
+ * ahead of the current idx or -1 if the end of the stream is reached before
  *
  * @param {rideEntry} ride - Ride object to find idx from
  * @param {Number} currentIdx - Current index in the ride to find the idx of
- * 								100m ahead
- * @returns {Number} - Index of the altitude stream 100m ahead of the current
+ * 								Xm ahead
+ * @param {Number} distance - Distance in meters to find the idx of
+ *
+ * @returns {Number} - Index of the altitude stream Xm ahead of the current
  * 					   index
  */
-function getIdxOf100MetersAhead(ride, currentIdx) {
-	let currentDistance = ride.distance_stream[currentIdx];
+function getIdxOfPointXMetersAhead(ride, currentIdx, distance) {
+	let currentDistance = ride.distance_stream.data[currentIdx];
 
-	for (let i = currentIdx; i < ride.distance_stream.length; i++) {
-		if (ride.distance_stream[i] - currentDistance >= 100) {
+	for (let i = currentIdx; i < ride.distance_stream.data.length; i++) {
+		if (ride.distance_stream.data[i] - currentDistance >= distance) {
 			return i;
 		}
 	}
