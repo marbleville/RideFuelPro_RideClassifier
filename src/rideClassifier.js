@@ -267,7 +267,15 @@ function getFlatPercentage(ride) {
  * @returns {Number} - Average gradient of all hills in the ride, as a decimal
  */
 function getAverageUphillGradient(ride) {
-	return 0;
+	let avgGradient = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			avgGradient += hill.averageGradient / ride.hills.length;
+		}
+	}
+
+	return avgGradient;
 }
 
 /**
