@@ -218,7 +218,15 @@ function getFlatSpeed(ride) {
  * @returns {Number} - Percent of ride that is uphill as a decimal
  */
 function getUphillPercentage(ride) {
-	return 0;
+	let totalUphillDistance = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			totalUphillDistance += hill.distance;
+		}
+	}
+
+	return totalUphillDistance / ride.distance;
 }
 
 /**
@@ -229,7 +237,15 @@ function getUphillPercentage(ride) {
  * @returns {Number} - Percent of ride that is downhill as a decimal
  */
 function getDownhillPercentage(ride) {
-	return 0;
+	let totalDownhillDistance = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient < 0) {
+			totalDownhillDistance += hill.distance;
+		}
+	}
+
+	return totalDownhillDistance / ride.distance;
 }
 
 /**
@@ -240,7 +256,7 @@ function getDownhillPercentage(ride) {
  * @returns {Number} - Percent of ride that is flat as a decimal
  */
 function getFlatPercentage(ride) {
-	return 0;
+	return 1 - ride.percent_up - ride.percent_down;
 }
 
 /**
