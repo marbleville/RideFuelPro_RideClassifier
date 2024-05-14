@@ -347,29 +347,56 @@ function findHills(ride, setting) {
 			hill.idxStart = hillStart;
 			hill.idxEnd = hillEndIdx;
 
-			hill.averageGradient =
-				(ride.altitude_stream.data[hillEndIdx] -
-					ride.altitude_stream.data[hillStart]) /
-				(ride.distance_stream.data[hillEndIdx] -
-					ride.distance_stream.data[hillStart]);
-
 			hills.push(hill);
 
 			i = hillEndIdx;
 		}
 	}
 
-	// hills.map((e) => {
-	// 	console.log(
-	// 		`Start: ${ride.distance_stream.data[e.idxStart]}, End: ${
-	// 			ride.distance_stream.data[e.idxEnd]
-	// 		}, Distance: ${
-	// 			ride.distance_stream.data[e.idxEnd] -
-	// 			ride.distance_stream.data[e.idxStart]
-	// 		}, Grade: ${e.averageGradient}`
-	// 	);
-	// });
+	// fill in the rest of the hill values
+	hills.map((hill) => {
+		hill = getHillValues(hill, ride);
+	});
+
 	return hills;
+}
+
+/**
+ * Given a hillEntry with a start and end index, calculates the distance,
+ * elevation gain, average gradient, average speed, and average watts from the
+ * rideEntry that contins this hill
+ *
+ * @param {hillEntry} hill - Hill object to calculate values for
+ * @param {rideEntry} ride - Ride object whcih contains the given hill
+ *
+ * @returns {hillEntry} - Hill object with calculated values
+ */
+function getHillValues(hill, ride) {
+	hill.distance =
+		ride.distance_stream.data[hill.idxEnd] -
+		ride.distance_stream.data[hill.idxStart];
+
+	hill.elevationGain =
+		ride.altitude_stream.data[hill.idxEnd] -
+		ride.altitude_stream.data[hill.idxStart];
+
+	hill.averageGradient =
+		(ride.altitude_stream.data[hill.idxEnd] -
+			ride.altitude_stream.data[hill.idxStart]) /
+		(ride.distance_stream.data[hill.idxEnd] -
+			ride.distance_stream.data[hill.idxStart]);
+
+	hill.averageSpeed =
+		hill.distance /
+		(ride.time_stream.data[hill.idxEnd] -
+			ride.time_stream.data[hill.idxStart]);
+
+	hill.averageWatts = 0;
+	let idxDifferece = hill.idxEnd - hill.idxStart;
+
+	for (let i = hill.idxStart; i < hill.idxEnd; i++) {
+		hill.averageWatts += ride.power_stream.data[i] / idxDifferece;
+	}
 }
 
 /**
