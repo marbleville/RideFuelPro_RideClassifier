@@ -54,6 +54,7 @@ let rideEntry = {
  *
  * @param {rideEntry} ride - Ride object to be classfied
  * @param {Number} ftp - Rider's FTP
+ *
  * @returns {String} - Ride type
  */
 function getRideType(ride, ftp) {
@@ -103,100 +104,184 @@ function calculateMissingRideValues(ride, ftp) {
  * Returns the average watts for uphill sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate uphill watts from
+ *
  * @returns {Number} - Average watts for uphill sections
  */
 function getUphillWatts(ride) {
-	return 0;
+	let uphillWatts = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			uphillWatts += hill.averageWatts / ride.hills.length;
+		}
+	}
+
+	return uphillWatts;
 }
 
 /**
  * Returns the average watts for downhill sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate uphill watts from
+ *
  * @returns {Number} - Average watts for downhill sections
  */
 function getDownhillWatts(ride) {
-	return 0;
+	let downhillWatts = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient < 0) {
+			downhillWatts += hill.averageWatts / ride.hills.length;
+		}
+	}
+
+	return downhillWatts;
 }
 
 /**
  * Returns the average watts for flat sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate uphill watts from
+ *
  * @returns {Number} - Average watts for flat sections
  */
 function getFlatWatts(ride) {
-	return 0;
+	// (u + d + f) / 3 = a -> f = 3a - u - d
+
+	return (
+		3 * ride.average_watts -
+		ride.average_watts_uphill -
+		ride.average_watts_downhill
+	);
 }
 
 /**
  * Returns the average speed for uphill sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate uphill speed from
+ *
  * @returns {Number} - Average speed for uphill sections in meters per second
  */
 function getUphillSpeed(ride) {
-	return 0;
+	let uphillSpeed = 0;
+	let total = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			total++;
+			uphillSpeed += hill.averageSpeed;
+		}
+	}
+
+	return uphillSpeed / total;
 }
 
 /**
  * Returns the average speed for downhill sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate uphill speed from
+ *
  * @returns {Number} - Average speed for downhill sections in meters per second
  */
 function getDownhillSpeed(ride) {
-	return 0;
+	let downhillSpeed = 0;
+	let total = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient < 0) {
+			total++;
+			downhillSpeed += hill.averageSpeed;
+		}
+	}
+
+	return downhillSpeed / total;
 }
 
 /**
  * Returns the average speed for flat sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate uphill speed from
+ *
  * @returns {Number} - Average speed for flat sections in meters per second
  */
 function getFlatSpeed(ride) {
-	return 0;
+	// (u + d + f) / 3 = a -> f = 3a - u - d
+
+	return (
+		3 * ride.average_speed -
+		ride.average_speed_uphill -
+		ride.average_speed_downhill
+	);
 }
 
 /**
  * Returns the percent of the total distance of the ride that is uphill
  *
  * @param {rideEntry} ride - Ride object to calculate uphill percent from
+ *
  * @returns {Number} - Percent of ride that is uphill as a decimal
  */
 function getUphillPercentage(ride) {
-	return 0;
+	let totalUphillDistance = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			totalUphillDistance += hill.distance;
+		}
+	}
+
+	return totalUphillDistance / ride.distance;
 }
 
 /**
  * Returns the percent of the total distance of the ride that is downhill
  *
  * @param {rideEntry} ride - Ride object to calculate downhill percent from
+ *
  * @returns {Number} - Percent of ride that is downhill as a decimal
  */
 function getDownhillPercentage(ride) {
-	return 0;
+	let totalDownhillDistance = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient < 0) {
+			totalDownhillDistance += hill.distance;
+		}
+	}
+
+	return totalDownhillDistance / ride.distance;
 }
 
 /**
  * Returns the percent of the total distance of the ride that is flat
  *
  * @param {rideEntry} ride - Ride object to calculate flat percent from
+ *
  * @returns {Number} - Percent of ride that is flat as a decimal
  */
 function getFlatPercentage(ride) {
-	return 0;
+	return 1 - ride.percent_up - ride.percent_down;
 }
 
 /**
  * Returns the average gradient of the uphill sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate average gradient from
+ *
  * @returns {Number} - Average gradient of all hills in the ride, as a decimal
  */
 function getAverageUphillGradient(ride) {
-	return 0;
+	let avgGradient = 0;
+	let total = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			total++;
+			avgGradient += hill.averageGradient;
+		}
+	}
+
+	return avgGradient / total;
 }
 
 /**
@@ -208,6 +293,10 @@ function getAverageUphillGradient(ride) {
  * @returns {Array} - Array of hillEntries found in the ride
  */
 function findHills(ride, setting) {
+	if (!(setting === "uphill" || setting === "downhill")) {
+		console.error("Invalid setting for findHills");
+	}
+
 	const MIN_GRADE = 0.02;
 	const MIN_DISTANCE = 300;
 	const MAX_FALSE_FLAT_DISTANCE = 200;
@@ -332,29 +421,56 @@ function findHills(ride, setting) {
 			hill.idxStart = hillStart;
 			hill.idxEnd = hillEndIdx;
 
-			hill.averageGradient =
-				(ride.altitude_stream.data[hillEndIdx] -
-					ride.altitude_stream.data[hillStart]) /
-				(ride.distance_stream.data[hillEndIdx] -
-					ride.distance_stream.data[hillStart]);
-
 			hills.push(hill);
 
 			i = hillEndIdx;
 		}
 	}
 
-	// hills.map((e) => {
-	// 	console.log(
-	// 		`Start: ${ride.distance_stream.data[e.idxStart]}, End: ${
-	// 			ride.distance_stream.data[e.idxEnd]
-	// 		}, Distance: ${
-	// 			ride.distance_stream.data[e.idxEnd] -
-	// 			ride.distance_stream.data[e.idxStart]
-	// 		}, Grade: ${e.averageGradient}`
-	// 	);
-	// });
+	// fill in the rest of the hill values
+	hills.map((hill) => {
+		hill = getHillValues(hill, ride);
+	});
+
 	return hills;
+}
+
+/**
+ * Given a hillEntry with a start and end index, calculates the distance,
+ * elevation gain, average gradient, average speed, and average watts from the
+ * rideEntry that contins this hill
+ *
+ * @param {hillEntry} hill - Hill object to calculate values for
+ * @param {rideEntry} ride - Ride object whcih contains the given hill
+ *
+ * @returns {hillEntry} - Hill object with calculated values
+ */
+function getHillValues(hill, ride) {
+	hill.distance =
+		ride.distance_stream.data[hill.idxEnd] -
+		ride.distance_stream.data[hill.idxStart];
+
+	hill.elevationGain =
+		ride.altitude_stream.data[hill.idxEnd] -
+		ride.altitude_stream.data[hill.idxStart];
+
+	hill.averageGradient =
+		(ride.altitude_stream.data[hill.idxEnd] -
+			ride.altitude_stream.data[hill.idxStart]) /
+		(ride.distance_stream.data[hill.idxEnd] -
+			ride.distance_stream.data[hill.idxStart]);
+
+	hill.averageSpeed =
+		hill.distance /
+		(ride.time_stream.data[hill.idxEnd] -
+			ride.time_stream.data[hill.idxStart]);
+
+	hill.averageWatts = 0;
+	let idxDifferece = hill.idxEnd - hill.idxStart;
+
+	for (let i = hill.idxStart; i < hill.idxEnd; i++) {
+		hill.averageWatts += ride.power_stream.data[i] / idxDifferece;
+	}
 }
 
 /**
