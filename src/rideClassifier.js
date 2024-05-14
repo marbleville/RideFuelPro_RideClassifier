@@ -146,7 +146,13 @@ function getDownhillWatts(ride) {
  * @returns {Number} - Average watts for flat sections
  */
 function getFlatWatts(ride) {
-	return 0;
+	// (u + d + f) / 3 = a -> f = 3a - u - d
+
+	return (
+		3 * ride.average_watts -
+		ride.average_watts_uphill -
+		ride.average_watts_downhill
+	);
 }
 
 /**
