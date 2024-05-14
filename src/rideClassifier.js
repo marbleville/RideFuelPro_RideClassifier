@@ -108,7 +108,15 @@ function calculateMissingRideValues(ride, ftp) {
  * @returns {Number} - Average watts for uphill sections
  */
 function getUphillWatts(ride) {
-	return 0;
+	let uphillWatts = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			uphillWatts += hill.averageWatts / ride.hills.length;
+		}
+	}
+
+	return uphillWatts;
 }
 
 /**

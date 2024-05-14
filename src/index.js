@@ -139,7 +139,7 @@ function testCalculateMissingRideValuesArray() {
 		const data = fs.readFileSync("../resources/activites.json", "utf8");
 		let rides = JSON.parse(data);
 		calculateMissingRideValuesArray(rides, 250);
-		console.log(rides[0].hills);
+		console.log(rides[0]);
 	} catch (err) {
 		console.error(err);
 	}
