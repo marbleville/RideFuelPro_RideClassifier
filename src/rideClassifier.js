@@ -127,7 +127,15 @@ function getUphillWatts(ride) {
  * @returns {Number} - Average watts for downhill sections
  */
 function getDownhillWatts(ride) {
-	return 0;
+	let downhillWatts = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient < 0) {
+			downhillWatts += hill.averageWatts / ride.hills.length;
+		}
+	}
+
+	return downhillWatts;
 }
 
 /**
