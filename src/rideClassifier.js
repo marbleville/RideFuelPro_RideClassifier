@@ -164,14 +164,16 @@ function getFlatWatts(ride) {
  */
 function getUphillSpeed(ride) {
 	let uphillSpeed = 0;
+	let total = 0;
 
 	for (let hill of ride.hills) {
 		if (hill.averageGradient > 0) {
-			uphillSpeed += hill.averageSpeed / ride.hills.length;
+			total++;
+			uphillSpeed += hill.averageSpeed;
 		}
 	}
 
-	return uphillSpeed;
+	return uphillSpeed / total;
 }
 
 /**
@@ -183,14 +185,16 @@ function getUphillSpeed(ride) {
  */
 function getDownhillSpeed(ride) {
 	let downhillSpeed = 0;
+	let total = 0;
 
 	for (let hill of ride.hills) {
 		if (hill.averageGradient < 0) {
-			downhillSpeed += hill.averageSpeed / ride.hills.length;
+			total++;
+			downhillSpeed += hill.averageSpeed;
 		}
 	}
 
-	return downhillSpeed;
+	return downhillSpeed / total;
 }
 
 /**
@@ -268,14 +272,16 @@ function getFlatPercentage(ride) {
  */
 function getAverageUphillGradient(ride) {
 	let avgGradient = 0;
+	let total = 0;
 
 	for (let hill of ride.hills) {
 		if (hill.averageGradient > 0) {
-			avgGradient += hill.averageGradient / ride.hills.length;
+			total++;
+			avgGradient += hill.averageGradient;
 		}
 	}
 
-	return avgGradient;
+	return avgGradient / total;
 }
 
 /**
