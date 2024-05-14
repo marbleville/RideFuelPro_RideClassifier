@@ -182,7 +182,15 @@ function getUphillSpeed(ride) {
  * @returns {Number} - Average speed for downhill sections in meters per second
  */
 function getDownhillSpeed(ride) {
-	return 0;
+	let downhillSpeed = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient < 0) {
+			downhillSpeed += hill.averageSpeed / ride.hills.length;
+		}
+	}
+
+	return downhillSpeed;
 }
 
 /**
@@ -193,7 +201,13 @@ function getDownhillSpeed(ride) {
  * @returns {Number} - Average speed for flat sections in meters per second
  */
 function getFlatSpeed(ride) {
-	return 0;
+	// (u + d + f) / 3 = a -> f = 3a - u - d
+
+	return (
+		3 * ride.average_speed -
+		ride.average_speed_uphill -
+		ride.average_speed_downhill
+	);
 }
 
 /**
