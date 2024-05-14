@@ -163,7 +163,15 @@ function getFlatWatts(ride) {
  * @returns {Number} - Average speed for uphill sections in meters per second
  */
 function getUphillSpeed(ride) {
-	return 0;
+	let uphillSpeed = 0;
+
+	for (let hill of ride.hills) {
+		if (hill.averageGradient > 0) {
+			uphillSpeed += hill.averageSpeed / ride.hills.length;
+		}
+	}
+
+	return uphillSpeed;
 }
 
 /**
