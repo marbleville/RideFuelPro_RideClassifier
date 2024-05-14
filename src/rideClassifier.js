@@ -219,7 +219,7 @@ function getAverageUphillGradient(ride) {
  * @returns {Array} - Array of hillEntries found in the ride
  */
 function findHills(ride, setting) {
-	if (setting !== "uphill" || setting !== "downhill") {
+	if (!(setting === "uphill" || setting === "downhill")) {
 		console.error("Invalid setting for findHills");
 	}
 
