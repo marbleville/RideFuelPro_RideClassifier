@@ -19,6 +19,13 @@ const hillEntry = {
 	averageWatts: 0,
 };
 
+const intervalEntry = {
+	idxStart: 0,
+	idxEnd: 0,
+	time: 0,
+	averageWatts: 0,
+};
+
 // Object containing a ride's assiciated data
 let rideEntry = {
 	name: "",
@@ -46,6 +53,7 @@ let rideEntry = {
 	distance_stream: [],
 	time_stream: [],
 	hills: [],
+	intervals: [],
 	workout_type: "",
 };
 
@@ -76,6 +84,7 @@ function getRideType(ride, ftp) {
  * - percent_flat
  * - average_uphill_gradient
  * - hills
+ * - intervals
  * - workout_type
  *
  * @param {rideEntry} ride - Ride object to calculate missing values for
@@ -94,10 +103,22 @@ function calculateMissingRideValues(ride, ftp) {
 	ride.percent_down = getDownhillPercentage(ride);
 	ride.percent_flat = getFlatPercentage(ride);
 	ride.average_uphill_gradient = getAverageUphillGradient(ride);
+	ride.intervals = findIntervals(ride);
 
 	ride.workout_type = getRideType(ride, ftp);
 
 	return ride;
+}
+
+/**
+ * Finds intervals in a ride and adds them to the ride object
+ *
+ * @param {rideEntry} ride - Ride object to find intervals from
+ *
+ * @returns {Array<intervalEntry>} - Array of interval objects found in the ride
+ */
+function findIntervals(ride) {
+	return [];
 }
 
 /**

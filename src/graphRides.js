@@ -160,24 +160,18 @@ const intervalSpec = {
  * highlighted
  *
  * @param {Array<Number>} dataStream - The data stream to be graphed
+ * @param {Array<Number>} distanceStream - The distance stream to be graphed
  * @param {Array<intervalSpec>} intervalSpecs - The intervals to be highlighted
+ * @param {String} name - The name of the ride being graphed
  */
-
-/**
- * Refactor to take in a data stream, and an array of new "intervalSpec"
- * objects.
- *
- * Wrapper function will convert hillEntries or interval entries into the
- * intervalSpec object
- */
-function drawDataStream(dataStream, intervalSpecs) {
+function drawDataStream(dataStream, distanceStream, intervalSpecs, name) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
 
 	// Set each altitude and distance data point
 	for (let i = 0; i < dataStream.length; i++) {
 		let dataPoint = Object.create(dataPointSpec);
-		dataPoint.x = dataStream[i];
+		dataPoint.x = distanceStream[i];
 		dataPoint.y = dataStream[i];
 		rideChartSpec.data[0].values.push(dataPoint);
 	}
@@ -198,7 +192,7 @@ function drawDataStream(dataStream, intervalSpecs) {
 			await sharp(Buffer.from(svg))
 				.toFormat("png")
 				.toFile(
-					`../rideGraphs/${ride.name
+					`../rideGraphs/${name
 						.split(" ")
 						.join("-")}AltitudeGraph.png`
 				);
@@ -214,7 +208,8 @@ function drawDataStream(dataStream, intervalSpecs) {
  * @param {rideEntry} ride - Ride object to be graphed
  */
 function drawRideAltitude(ride) {
-	let dataStream = ride.altitude;
+	let dataStream = ride.altitude_stream.data;
+	let distanceStream = ride.distance_stream.data;
 	let intervalSpecs = [];
 
 	for (let hill of ride.hills) {
@@ -222,14 +217,14 @@ function drawRideAltitude(ride) {
 		let dataLength = dataStream.length;
 
 		let widthInIdx = hill.idxEnd - hill.idxStart;
-		interval.xStart = (hill.idxStart / dataLength) * 1920;
-		interval.xWidth = (widthInIdx / dataLength) * 1920;
+		interval.xStart = (hill.idxStart / dataLength) * graphWidthInPixels;
+		interval.xWidth = (widthInIdx / dataLength) * graphWidthInPixels;
 		interval.color = hill.averageGradient > 0 ? "red" : "green";
 
 		intervalSpecs.push(interval);
 	}
 
-	drawDataStream(dataStream, intervalSpecs);
+	drawDataStream(dataStream, distanceStream, intervalSpecs, ride.name);
 }
 
 /**
@@ -237,6 +232,25 @@ function drawRideAltitude(ride) {
  *
  * @param {rideEntry} ride - Ride object to be graphed
  */
-function drawRidePower(ride) {}
+function drawRidePower(ride) {
+	let dataStream = ride.power_stream.data;
+	let distanceStream = ride.distance_stream.data;
+	let intervalSpecs = [];
+
+	for (let interval of ride.intervals) {
+		let intervalSpec = Object.create(intervalSpec);
+		let dataLength = dataStream.length;
+
+		let widthInIdx = interval.idxEnd - interval.idxStart;
+		intervalSpec.xStart =
+			(interval.idxStart / dataLength) * graphWidthInPixels;
+		intervalSpec.xWidth = (widthInIdx / dataLength) * graphWidthInPixels;
+		intervalSpec.color = "red";
+
+		intervalSpecs.push(interval);
+	}
+
+	drawDataStream(dataStream, distanceStream, intervalSpecs, ride.name);
+}
 
 module.exports = { drawRideAltitude };
