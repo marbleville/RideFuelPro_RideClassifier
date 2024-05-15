@@ -159,6 +159,14 @@ const hillSpec = {
  *
  * @param {rideEntry} ride - Ride object to be graphed
  */
+
+/**
+ * Refactor to take in a data stream, and an array of new "intervalSpec"
+ * objects.
+ *
+ * Wrapper function will convert hillEntries or interval entries into the
+ * intervalSpec object
+ */
 function drawRideAltitude(ride) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
@@ -207,5 +215,12 @@ function drawRideAltitude(ride) {
 			console.error(err);
 		});
 }
+
+/**
+ * Writes a PNG file with the power graph of the given ride
+ *
+ * @param {rideEntry} ride - Ride object to be graphed
+ */
+function drawRidePower(ride) {}
 
 module.exports = { drawRideAltitude };
