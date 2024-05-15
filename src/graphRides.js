@@ -3,6 +3,7 @@ var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
 const { rideEntry, hillEntry } = require("./rideClassifier.js");
+const { sign } = require("crypto");
 const graphWidthInPixels = 1920;
 const graphHeightInPixels = 540;
 
@@ -32,6 +33,10 @@ const lineChartSpec = {
 					"step-before",
 				],
 			},
+		},
+		{
+			name: "mean_y",
+			value: 0,
 		},
 	],
 
@@ -98,13 +103,31 @@ const lineChartSpec = {
 
 	marks: [
 		{
+			type: "rule",
+			from: { data: "table" },
+			encode: {
+				enter: {
+					stroke: { value: "red" },
+					strokeWidth: { value: 3 },
+					x: { value: 0 },
+					y: { signal: "mean_y" },
+					x2: { value: graphWidthInPixels },
+					y2: { signal: "mean_y" },
+					opacity: {
+						expr: "datum[mean_y] == 0 ? 0 : 1",
+					},
+					sort: { value: "ascending" },
+				},
+			},
+		},
+		{
 			type: "rect",
 			from: { data: "hills" },
 			encode: {
 				enter: {
 					x: { field: "xStart" },
 					y: { value: 0 },
-					height: { value: 540 },
+					height: { value: graphHeightInPixels },
 					width: { field: "xWidth" },
 					fill: { field: "color" },
 					fillOpacity: { value: 0.5 },
@@ -165,7 +188,13 @@ const intervalSpec = {
  * @param {Array<intervalSpec>} intervalSpecs - The intervals to be highlighted
  * @param {String} name - The name of the ride being graphed
  */
-function drawDataStream(dataStream, distanceStream, intervalSpecs, name) {
+function drawDataStream(
+	dataStream,
+	distanceStream,
+	intervalSpecs,
+	name,
+	ruleLine = graphHeightInPixels
+) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
 
@@ -177,10 +206,13 @@ function drawDataStream(dataStream, distanceStream, intervalSpecs, name) {
 		rideChartSpec.data[0].values.push(dataPoint);
 	}
 
-	// Add hills to the chart
+	// Add intervals to the chart
 	for (let intervalSpec of intervalSpecs) {
 		rideChartSpec.data[1].values.push(intervalSpec);
 	}
+
+	// Set the rule line
+	rideChartSpec.signals[1].value = graphHeightInPixels - ruleLine;
 
 	// create a new view instance for a given Vega JSON spec
 	var view = new vega.View(vega.parse(rideChartSpec))
@@ -251,7 +283,13 @@ function drawRidePower(ride) {
 
 	let name = ride.name.split(" ").join("-") + "PowerGraph";
 
-	drawDataStream(dataStream, distanceStream, intervalSpecs, name);
+	drawDataStream(
+		dataStream,
+		distanceStream,
+		intervalSpecs,
+		name,
+		ride.average_watts
+	);
 }
 
 module.exports = { drawRideAltitude, drawRidePower };
