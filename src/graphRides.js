@@ -92,6 +92,7 @@ const lineChartSpec = {
 			tickMinStep: 10,
 			labelFontSize: 20,
 			labelColor: "lightgrey",
+			labelOverlap: "parity",
 		},
 	],
 
