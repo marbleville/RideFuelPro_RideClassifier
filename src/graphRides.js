@@ -191,11 +191,7 @@ function drawDataStream(dataStream, distanceStream, intervalSpecs, name) {
 		.then(async function (svg) {
 			await sharp(Buffer.from(svg))
 				.toFormat("png")
-				.toFile(
-					`../rideGraphs/${name
-						.split(" ")
-						.join("-")}AltitudeGraph.png`
-				);
+				.toFile(`../rideGraphs/${name}.png`);
 		})
 		.catch(function (err) {
 			console.error(err);
@@ -224,7 +220,9 @@ function drawRideAltitude(ride) {
 		intervalSpecs.push(interval);
 	}
 
-	drawDataStream(dataStream, distanceStream, intervalSpecs, ride.name);
+	let name = ride.name.split(" ").join("-") + "AltitudeGraph";
+
+	drawDataStream(dataStream, distanceStream, intervalSpecs, name);
 }
 
 /**
@@ -250,7 +248,9 @@ function drawRidePower(ride) {
 		intervalSpecs.push(interval);
 	}
 
-	drawDataStream(dataStream, distanceStream, intervalSpecs, ride.name);
+	let name = ride.name.split(" ").join("-") + "PowerGraph";
+
+	drawDataStream(dataStream, distanceStream, intervalSpecs, name);
 }
 
-module.exports = { drawRideAltitude };
+module.exports = { drawRideAltitude, drawRidePower };

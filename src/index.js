@@ -6,7 +6,7 @@ const {
 	calculateMissingRideValues,
 	findHills,
 } = require("./rideClassifier.js");
-const { drawRideAltitude } = require("./graphRides.js");
+const { drawRideAltitude, drawRidePower } = require("./graphRides.js");
 
 /**
  * Retuns an array of num activities
@@ -139,6 +139,7 @@ function testCalculateMissingRideValuesArray() {
 		const data = fs.readFileSync("../resources/activites.json", "utf8");
 		let rides = JSON.parse(data);
 		calculateMissingRideValuesArray(rides, 250);
+		drawRidePower(rides[0]);
 		drawRideAltitude(rides[0]);
 	} catch (err) {
 		console.error(err);
