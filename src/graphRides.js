@@ -3,14 +3,15 @@ var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
 const { rideEntry, hillEntry } = require("./rideClassifier.js");
-const { title } = require("process");
+const graphWidthInPixels = 1920;
+const graphHeightInPixels = 540;
 
 // define a line chart
 const lineChartSpec = {
 	$schema: "https://vega.github.io/schema/vega/v5.json",
 	description: "A basic line chart example.",
-	width: 1920,
-	height: 540,
+	width: graphWidthInPixels,
+	height: graphHeightInPixels,
 	padding: 5,
 
 	signals: [
@@ -148,16 +149,18 @@ const dataPointSpec = {
 	y: 0,
 };
 
-const hillSpec = {
+const intervalSpec = {
 	xStart: 0,
 	xWidth: 0,
 	color: "red",
 };
 
 /**
- * Writes a PNG file with the alttiude graph of the given ride
+ * Writes a PNG file of the given data stream with the given intervals
+ * highlighted
  *
- * @param {rideEntry} ride - Ride object to be graphed
+ * @param {Array<Number>} dataStream - The data stream to be graphed
+ * @param {Array<intervalSpec>} intervalSpecs - The intervals to be highlighted
  */
 
 /**
@@ -167,33 +170,22 @@ const hillSpec = {
  * Wrapper function will convert hillEntries or interval entries into the
  * intervalSpec object
  */
-function drawRideAltitude(ride) {
+function drawDataStream(dataStream, intervalSpecs) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
 
 	// Set each altitude and distance data point
-	for (let i = 0; i < ride.altitude_stream.data.length; i++) {
+	for (let i = 0; i < dataStream.length; i++) {
 		let dataPoint = Object.create(dataPointSpec);
-		dataPoint.x = ride.distance_stream.data[i];
-		dataPoint.y = ride.altitude_stream.data[i];
+		dataPoint.x = dataStream[i];
+		dataPoint.y = dataStream[i];
 		rideChartSpec.data[0].values.push(dataPoint);
 	}
 
 	// Add hills to the chart
-	for (let hillEntry of ride.hills) {
-		let hill = Object.create(hillSpec);
-
-		let dataLength = ride.distance_stream.data.length;
-		let widthInIdx = hillEntry.idxEnd - hillEntry.idxStart;
-
-		hill.xStart = (hillEntry.idxStart / dataLength) * 1920;
-		hill.xWidth = (widthInIdx / dataLength) * 1920;
-
-		hill.color = hillEntry.averageGradient > 0 ? "red" : "green";
-		rideChartSpec.data[1].values.push(hill);
+	for (let intervalSpec of intervalSpecs) {
+		rideChartSpec.data[1].values.push(intervalSpec);
 	}
-
-	let hill = Object.create(hillSpec);
 
 	// create a new view instance for a given Vega JSON spec
 	var view = new vega.View(vega.parse(rideChartSpec))
@@ -214,6 +206,30 @@ function drawRideAltitude(ride) {
 		.catch(function (err) {
 			console.error(err);
 		});
+}
+
+/**
+ * Writes a PNG file with the altitude graph of the given ride
+ *
+ * @param {rideEntry} ride - Ride object to be graphed
+ */
+function drawRideAltitude(ride) {
+	let dataStream = ride.altitude;
+	let intervalSpecs = [];
+
+	for (let hill of ride.hills) {
+		let interval = Object.create(intervalSpec);
+		let dataLength = dataStream.length;
+
+		let widthInIdx = hill.idxEnd - hill.idxStart;
+		interval.xStart = (hill.idxStart / dataLength) * 1920;
+		interval.xWidth = (widthInIdx / dataLength) * 1920;
+		interval.color = hill.averageGradient > 0 ? "red" : "green";
+
+		intervalSpecs.push(interval);
+	}
+
+	drawDataStream(dataStream, intervalSpecs);
 }
 
 /**
