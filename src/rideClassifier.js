@@ -132,19 +132,49 @@ function findIntervals(ride) {
  */
 function getCleanPowerStream(ride) {
 	var filter = new LowpassFilter();
+	let noOutliersPowerStream = [...ride.power_stream.data];
+
+	// remove outliers
+	for (let i = 0; i < noOutliersPowerStream.length; i++) {
+		if (noOutliersPowerStream[i] < 50) {
+			noOutliersPowerStream[i] = ride.average_watts;
+		}
+
+		if (
+			noOutliersPowerStream[i] > ride.average_watts &&
+			noOutliersPowerStream[i] < ride.average_watts * 1.3
+		) {
+			noOutliersPowerStream[i] = ride.average_watts;
+		}
+	}
 
 	let cleanPowerStream = [];
 
 	filter.setLogic(filter.LinearWeightAverage);
-	for (let i = 0; i < ride.power_stream.data.length; i++) {
+	for (let i = 0; i < noOutliersPowerStream.length; i++) {
 		//put current value
-		filter.putValue(ride.power_stream.data[i]);
+		filter.putValue(noOutliersPowerStream[i]);
 		//Get the latest calculated moving average of the values putted so far
 		var filteredValue = filter.getFilteredValue();
 		cleanPowerStream.push(filteredValue);
 	}
 
-	return cleanPowerStream;
+	// average the power stream in 20 index increments
+	let averagedPowerStream = [];
+	let sum = 0;
+	let count = 0;
+	for (let i = 0; i < cleanPowerStream.length; i++) {
+		sum += cleanPowerStream[i];
+		count++;
+
+		if (count === 20) {
+			averagedPowerStream.push(sum / 20);
+			sum = 0;
+			count = 0;
+		}
+	}
+
+	return averagedPowerStream;
 }
 
 /**
