@@ -122,6 +122,31 @@ function findIntervals(ride) {
 }
 
 /**
+ *	Cleans the power stream of a ride by smoothing the power file and removing
+ *	erroneous data
+ *
+ * @param {rideEntry} ride - Ride object to clean the power stream of
+ *
+ * @returns {Array} - Cleaned power stream
+ */
+function getCleanPowerStream(ride) {
+	let cleanPowerStream = [...ride.power_stream.data];
+
+	for (i = 0; i < cleanPowerStream.length - 51; i += 50) {
+		let sum = 0;
+		for (j = i; j < i + 50; j++) {
+			sum += cleanPowerStream[j];
+		}
+		let average = sum / 50;
+		for (j = i; j < i + 50; j++) {
+			cleanPowerStream[j] = average;
+		}
+	}
+
+	return cleanPowerStream;
+}
+
+/**
  * Returns the average watts for uphill sections of a ride
  *
  * @param {rideEntry} ride - Ride object to calculate uphill watts from
@@ -524,4 +549,5 @@ module.exports = {
 	hillEntry,
 	calculateMissingRideValues,
 	findHills,
+	getCleanPowerStream,
 };

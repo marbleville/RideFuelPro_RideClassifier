@@ -110,9 +110,9 @@ const lineChartSpec = {
 					stroke: { value: "red" },
 					strokeWidth: { value: 3 },
 					x: { value: 0 },
-					y: { signal: "mean_y" },
+					y: { scale: "y", signal: "mean_y" },
 					x2: { value: graphWidthInPixels },
-					y2: { signal: "mean_y" },
+					y2: { scale: "y", signal: "mean_y" },
 					opacity: {
 						expr: "datum[mean_y] == 0 ? 0 : 1",
 					},
@@ -125,10 +125,10 @@ const lineChartSpec = {
 			from: { data: "hills" },
 			encode: {
 				enter: {
-					x: { field: "xStart" },
+					x: { scale: "x", field: "xStart" },
 					y: { value: 0 },
-					height: { value: graphHeightInPixels },
-					width: { field: "xWidth" },
+					x2: { scale: "x", field: "xWidth" },
+					y2: { value: graphHeightInPixels },
 					fill: { field: "color" },
 					fillOpacity: { value: 0.5 },
 				},
@@ -175,7 +175,7 @@ const dataPointSpec = {
 
 const intervalSpec = {
 	xStart: 0,
-	xWidth: 0,
+	xEnd: 0,
 	color: "red",
 };
 
@@ -193,7 +193,7 @@ function drawDataStream(
 	distanceStream,
 	intervalSpecs,
 	name,
-	ruleLine = graphHeightInPixels
+	ruleLine = 0
 ) {
 	// Clone a new spec for the ride chart
 	let rideChartSpec = JSON.parse(JSON.stringify(lineChartSpec));
@@ -212,7 +212,7 @@ function drawDataStream(
 	}
 
 	// Set the rule line
-	rideChartSpec.signals[1].value = graphHeightInPixels - ruleLine;
+	rideChartSpec.signals[1].value = ruleLine;
 
 	// create a new view instance for a given Vega JSON spec
 	var view = new vega.View(vega.parse(rideChartSpec))
@@ -243,11 +243,9 @@ function drawRideAltitude(ride) {
 
 	for (let hill of ride.hills) {
 		let interval = Object.create(intervalSpec);
-		let dataLength = dataStream.length;
 
-		let widthInIdx = hill.idxEnd - hill.idxStart;
-		interval.xStart = (hill.idxStart / dataLength) * graphWidthInPixels;
-		interval.xWidth = (widthInIdx / dataLength) * graphWidthInPixels;
+		interval.xStart = distanceStream[hill.idxStart];
+		interval.xEnd = distanceStream[hill.idxEnd];
 		interval.color = hill.averageGradient > 0 ? "red" : "green";
 
 		intervalSpecs.push(interval);
@@ -270,12 +268,9 @@ function drawRidePower(ride) {
 
 	for (let interval of ride.intervals) {
 		let intervalSpec = Object.create(intervalSpec);
-		let dataLength = dataStream.length;
 
-		let widthInIdx = interval.idxEnd - interval.idxStart;
-		intervalSpec.xStart =
-			(interval.idxStart / dataLength) * graphWidthInPixels;
-		intervalSpec.xWidth = (widthInIdx / dataLength) * graphWidthInPixels;
+		intervalSpec.xStart = distanceStream[interval.idxStart];
+		intervalSpec.xEnd = distanceStream[interval.idxEnd];
 		intervalSpec.color = "red";
 
 		intervalSpecs.push(interval);

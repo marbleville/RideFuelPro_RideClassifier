@@ -5,6 +5,7 @@ const {
 	typeOfRide,
 	calculateMissingRideValues,
 	findHills,
+	getCleanPowerStream,
 } = require("./rideClassifier.js");
 const { drawRideAltitude, drawRidePower } = require("./graphRides.js");
 
@@ -139,6 +140,7 @@ function testCalculateMissingRideValuesArray() {
 		const data = fs.readFileSync("../resources/activites.json", "utf8");
 		let rides = JSON.parse(data);
 		calculateMissingRideValuesArray(rides, 250);
+		rides[0].power_stream.data = getCleanPowerStream(rides[0]);
 		drawRidePower(rides[0]);
 		drawRideAltitude(rides[0]);
 	} catch (err) {
