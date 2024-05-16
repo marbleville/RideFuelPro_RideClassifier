@@ -142,7 +142,7 @@ function testCalculateMissingRideValuesArray() {
 		calculateMissingRideValuesArray(rides, 250);
 		rides[0].power_stream.data = getCleanPowerStream(rides[0]);
 		drawRidePower(rides[0]);
-		drawRideAltitude(rides[0]);
+		//drawRideAltitude(rides[0]);
 	} catch (err) {
 		console.error(err);
 	}

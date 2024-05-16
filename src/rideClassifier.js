@@ -1,4 +1,5 @@
 const { id } = require("vega");
+var LowpassFilter = require("lowpassf");
 
 // Object contianing the different types of rides
 const typeOfRide = {
@@ -130,17 +131,17 @@ function findIntervals(ride) {
  * @returns {Array} - Cleaned power stream
  */
 function getCleanPowerStream(ride) {
-	let cleanPowerStream = [...ride.power_stream.data];
+	var filter = new LowpassFilter();
 
-	for (i = 0; i < cleanPowerStream.length - 51; i += 50) {
-		let sum = 0;
-		for (j = i; j < i + 50; j++) {
-			sum += cleanPowerStream[j];
-		}
-		let average = sum / 50;
-		for (j = i; j < i + 50; j++) {
-			cleanPowerStream[j] = average;
-		}
+	let cleanPowerStream = [];
+
+	filter.setLogic(filter.LinearWeightAverage);
+	for (let i = 0; i < ride.power_stream.data.length; i++) {
+		//put current value
+		filter.putValue(ride.power_stream.data[i]);
+		//Get the latest calculated moving average of the values putted so far
+		var filteredValue = filter.getFilteredValue();
+		cleanPowerStream.push(filteredValue);
 	}
 
 	return cleanPowerStream;
