@@ -119,7 +119,115 @@ function calculateMissingRideValues(ride, ftp) {
  * @returns {Array<intervalEntry>} - Array of interval objects found in the ride
  */
 function findIntervals(ride) {
-	return [];
+	/**
+	 * Algorithm to find intervals:
+	 *
+	 * Search in 50 index chunks until a chunk avgerage watts is 20% higher than
+	 * average watts
+	 * 		- Store the start of the interval
+	 * 		- Then begin a greedy search on both ends of the interval to
+	 * 			maximize the average watts
+	 * 			greeding searhc moves interval ends by 10 indexes at a time
+	 */
+
+	const INTERVAL_THRESHOLD = 1.2;
+	const SEARCH_INCREMENT = 50;
+	const GREEDY_SEARCH_INCREMENT = 10;
+
+	let intervals = [];
+
+	for (let i = 0; i < ride.power_stream.data.length; i += SEARCH_INCREMENT) {
+		let intervalStart = i;
+
+		// If the end of the stream is reached
+		if (i + SEARCH_INCREMENT >= ride.power_stream.data.length) {
+			break;
+		}
+
+		// If the average watts are not high enough, continue
+		let intervalAverageWatts = getIntervalAverageWatts(
+			ride,
+			intervalStart,
+			intervalStart + SEARCH_INCREMENT
+		);
+
+		if (intervalAverageWatts < ride.average_watts * INTERVAL_THRESHOLD) {
+			continue;
+		}
+
+		// Greedy search for the interval
+		let intervalEnd = intervalStart + SEARCH_INCREMENT;
+
+		let greedySearch = true;
+		while (greedySearch) {
+			let intervalAverageWatts = getIntervalAverageWatts(
+				ride,
+				intervalStart,
+				intervalEnd
+			);
+
+			let intervalAverageWattsForward = getIntervalAverageWatts(
+				ride,
+				intervalStart,
+				intervalEnd + GREEDY_SEARCH_INCREMENT
+			);
+
+			let intervalAverageWattsBackward = getIntervalAverageWatts(
+				ride,
+				intervalStart - GREEDY_SEARCH_INCREMENT,
+				intervalEnd
+			);
+
+			if (
+				intervalAverageWattsForward > intervalAverageWatts &&
+				intervalAverageWattsForward > intervalAverageWattsBackward
+			) {
+				intervalEnd += GREEDY_SEARCH_INCREMENT;
+			} else if (
+				intervalAverageWattsBackward > intervalAverageWatts &&
+				intervalAverageWattsBackward > intervalAverageWattsForward
+			) {
+				intervalStart -= GREEDY_SEARCH_INCREMENT;
+			} else {
+				greedySearch = false;
+			}
+		}
+
+		let interval = Object.create(intervalEntry);
+		interval.idxStart = intervalStart;
+		interval.idxEnd = intervalEnd;
+		interval.time =
+			ride.time_stream.data[intervalEnd] -
+			ride.time_stream.data[intervalStart];
+		interval.averageWatts = getIntervalAverageWatts(
+			ride,
+			intervalStart,
+			intervalEnd
+		);
+
+		intervals.push(interval);
+	}
+
+	return intervals;
+}
+
+/**
+ * Returns the average watts for an interval in a ride
+ *
+ * @param {rideEntry} ride - Ride object to calculate interval values from
+ * @param {Number} start - Start index of the interval
+ * @param {Number} end - End index of the interval
+ */
+function getIntervalAverageWatts(ride, start, end) {
+	let sum = 0;
+	let count = 0;
+
+	for (let i = start; i < end; i++) {
+		sum += getCleanPowerStream(ride)[i];
+		count++;
+	}
+
+	return sum / count;
 }
 
 /**

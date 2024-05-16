@@ -2,7 +2,7 @@
 var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
-const { rideEntry, hillEntry } = require("./rideClassifier.js");
+const { rideEntry, hillEntry, intervalEntry } = require("./rideClassifier.js");
 const { sign } = require("crypto");
 const graphWidthInPixels = 1920;
 const graphHeightInPixels = 540;
@@ -126,8 +126,8 @@ const lineChartSpec = {
 			encode: {
 				enter: {
 					x: { scale: "x", field: "xStart" },
+					x2: { scale: "x", field: "xEnd" },
 					y: { value: 0 },
-					x2: { scale: "x", field: "xWidth" },
 					y2: { value: graphHeightInPixels },
 					fill: { field: "color" },
 					fillOpacity: { value: 0.5 },
@@ -267,13 +267,13 @@ function drawRidePower(ride) {
 	let intervalSpecs = [];
 
 	for (let interval of ride.intervals) {
-		let intervalSpec = Object.create(intervalSpec);
+		let intervalSpecCopy = Object.create(intervalSpec);
 
-		intervalSpec.xStart = distanceStream[interval.idxStart];
-		intervalSpec.xEnd = distanceStream[interval.idxEnd];
-		intervalSpec.color = "red";
+		intervalSpecCopy.xStart = distanceStream[interval.idxStart];
+		intervalSpecCopy.xEnd = distanceStream[interval.idxEnd];
+		intervalSpecCopy.color = "red";
 
-		intervalSpecs.push(interval);
+		intervalSpecs.push(intervalSpecCopy);
 	}
 
 	let name = ride.name.split(" ").join("-") + "PowerGraph";
