@@ -206,6 +206,8 @@ function findIntervals(ride) {
 		);
 
 		intervals.push(interval);
+
+		i = intervalEnd;
 	}
 
 	return intervals;
