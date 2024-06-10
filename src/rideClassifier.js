@@ -137,77 +137,27 @@ function findIntervals(ride) {
 	let intervals = [];
 
 	for (let i = 0; i < ride.power_stream.data.length; i += SEARCH_INCREMENT) {
-		let intervalStart = i;
-
 		// If the end of the stream is reached
 		if (i + SEARCH_INCREMENT >= ride.power_stream.data.length) {
 			break;
 		}
 
+		let intervalStart = i;
+		let intervalEnd = i + SEARCH_INCREMENT;
+
 		// If the average watts are not high enough, continue
 		let intervalAverageWatts = getIntervalAverageWatts(
 			ride,
 			intervalStart,
-			intervalStart + SEARCH_INCREMENT
+			intervalEnd
 		);
 
 		if (intervalAverageWatts < ride.average_watts * INTERVAL_THRESHOLD) {
 			continue;
 		}
 
-		// Greedy search for the interval
-		let intervalEnd = intervalStart + SEARCH_INCREMENT;
-
 		let greedySearch = true;
-		while (greedySearch) {
-			let intervalAverageWatts = getIntervalAverageWatts(
-				ride,
-				intervalStart,
-				intervalEnd
-			);
-
-			let intervalAverageWattsForward = getIntervalAverageWatts(
-				ride,
-				intervalStart,
-				intervalEnd + GREEDY_SEARCH_INCREMENT
-			);
-
-			let intervalAverageWattsBackward = getIntervalAverageWatts(
-				ride,
-				intervalStart - GREEDY_SEARCH_INCREMENT,
-				intervalEnd
-			);
-
-			if (
-				intervalAverageWattsForward > intervalAverageWatts &&
-				intervalAverageWattsForward > intervalAverageWattsBackward
-			) {
-				intervalEnd += GREEDY_SEARCH_INCREMENT;
-			} else if (
-				intervalAverageWattsBackward > intervalAverageWatts &&
-				intervalAverageWattsBackward > intervalAverageWattsForward
-			) {
-				intervalStart -= GREEDY_SEARCH_INCREMENT;
-			} else {
-				greedySearch = false;
-			}
-		}
-
-		let interval = Object.create(intervalEntry);
-		interval.idxStart = intervalStart;
-		interval.idxEnd = intervalEnd;
-		interval.time =
-			ride.time_stream.data[intervalEnd] -
-			ride.time_stream.data[intervalStart];
-		interval.averageWatts = getIntervalAverageWatts(
-			ride,
-			intervalStart,
-			intervalEnd
-		);
-
-		intervals.push(interval);
-
-		i = intervalEnd;
+		while (greedySearch) {}
 	}
 
 	return intervals;
