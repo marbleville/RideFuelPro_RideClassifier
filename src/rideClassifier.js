@@ -433,6 +433,17 @@ function getAverageUphillGradient(ride) {
 function findHills(ride) {
 	let hills = [];
 
+	let hillFragments = getHillFragments(ride);
+	let cleanedHills = cleanHillFragments(ride, hillFragments);
+
+	for (let hill of cleanedHills) {
+		let hillEntry = Object.create(hillEntry);
+		hillEntry.idxStart = hill.idxStart;
+		hillEntry.idxEnd = hill.idxEnd;
+		getHillValues(hillEntry, ride);
+		hills.push(hillEntry);
+	}
+
 	return hills;
 }
 
@@ -518,7 +529,14 @@ function getHillFragments(ride) {
  *
  * @returns {Array} - Array of cleaned hill fragments
  */
-function cleanHillFragments(ride, hillFragments) {}
+function cleanHillFragments(ride, hillFragments) {
+	let cleanedHills = [];
+	// Remove hills that are under 3% gradient
+	// Combine hills that are within like 200m of eahc otehr and the sapce in
+	// between has gradient of <3%
+	// Finally, remove hills that are under 200m long
+	return cleanedHills;
+}
 
 /**
  * Given a hillEntry with a start and end index, calculates the distance,
@@ -527,8 +545,6 @@ function cleanHillFragments(ride, hillFragments) {}
  *
  * @param {hillEntry} hill - Hill object to calculate values for
  * @param {rideEntry} ride - Ride object whcih contains the given hill
- *
- * @returns {hillEntry} - Hill object with calculated values
  */
 function getHillValues(hill, ride) {
 	hill.distance =
