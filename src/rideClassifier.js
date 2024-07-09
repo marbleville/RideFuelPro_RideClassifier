@@ -104,7 +104,7 @@ function calculateMissingRideValues(ride, ftp) {
 	ride.percent_down = getDownhillPercentage(ride);
 	ride.percent_flat = getFlatPercentage(ride);
 	ride.average_uphill_gradient = getAverageUphillGradient(ride);
-	ride.intervals = findIntervals(ride);
+	// ride.intervals = findIntervals(ride);
 
 	ride.workout_type = getRideType(ride, ftp);
 
