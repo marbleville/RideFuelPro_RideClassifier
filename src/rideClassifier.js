@@ -510,6 +510,17 @@ function getHillFragments(ride) {
 }
 
 /**
+ * Cleans the hill fragments of a ride by removing any fragments that are too
+ * short or shallow and combining hill that are likley together
+ *
+ * @param {rideEntry} ride
+ * @param {Array<{idxStart, idxEnd}>} hillFragments
+ *
+ * @returns {Array} - Array of cleaned hill fragments
+ */
+function cleanHillFragments(ride, hillFragments) {}
+
+/**
  * Given a hillEntry with a start and end index, calculates the distance,
  * elevation gain, average gradient, average speed, and average watts from the
  * rideEntry that contins this hill
