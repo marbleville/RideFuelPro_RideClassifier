@@ -437,11 +437,11 @@ function findHills(ride) {
 	let cleanedHills = cleanHillFragments(ride, hillFragments);
 
 	for (let hill of cleanedHills) {
-		let hillEntry = Object.create(hillEntry);
-		hillEntry.idxStart = hill.idxStart;
-		hillEntry.idxEnd = hill.idxEnd;
-		getHillValues(hillEntry, ride);
-		hills.push(hillEntry);
+		let hillEnt = Object.create(hillEntry);
+		hillEnt.idxStart = hill.idxStart;
+		hillEnt.idxEnd = hill.idxEnd;
+		getHillValues(hillEnt, ride);
+		hills.push(hillEnt);
 	}
 
 	return hills;
@@ -513,6 +513,7 @@ function getHillFragments(ride) {
 			// Found the end of the hill
 			hillFragments.push({ idxStart: startIDX, idxEnd: curIDX });
 			startIDX = curIDX;
+			curIDX++;
 			gradientAscent = !gradientAscent;
 		}
 	}
@@ -530,7 +531,8 @@ function getHillFragments(ride) {
  * @returns {Array} - Array of cleaned hill fragments
  */
 function cleanHillFragments(ride, hillFragments) {
-	const hillGap = `200`;
+	const hillGap = 200;
+	const minGradient = 0.02;
 
 	let cleanedHills = [];
 	// Remove hills that are under 3% gradient
@@ -539,34 +541,42 @@ function cleanHillFragments(ride, hillFragments) {
 
 	let culledHills = [];
 	for (hill of hillFragments) {
-		if (
+		let gradient =
 			(ride.altitude_stream.data[hill.idxEnd] -
 				ride.altitude_stream.data[hill.idxStart]) /
-				(ride.distance_stream.data[hill.idxEnd] -
-					ride.distance_stream.data[hill.idxStart]) >
-			0.03
+			(ride.distance_stream.data[hill.idxEnd] -
+				ride.distance_stream.data[hill.idxStart]);
+
+		if (
+			!Number.isNaN(gradient) &&
+			(gradient > minGradient || gradient < -minGradient)
 		) {
+			// console.log(gradient);
 			culledHills.push(hill);
+			continue;
 		}
 	}
 
 	let combinedHills = [];
-	let curHillIDX = 0;
+	let curCulledHillIDX = 1;
+	let currentHill = culledHills[0];
 
-	while (curHillIDX < culledHills.length - 1) {
-		let endOfCurrentHill = culledHills[curHillIDX].idxEnd;
-		let startOfNextHill = culledHills[curHillIDX + 1].idxStart;
+	while (curCulledHillIDX < culledHills.length - 1) {
+		let endOfCurrentHill = currentHill.idxEnd;
+		let startOfNextHill = culledHills[curCulledHillIDX].idxStart;
 
+		// fix combining hills of different gradients
 		if (
 			ride.distance_stream.data[startOfNextHill] -
 				ride.distance_stream.data[endOfCurrentHill] <=
 			hillGap
 		) {
-			combinedHills.push({
-				idxStart: culledHills[curHillIDX].idxStart,
-				idxEnd: culledHills[curHillIDX + 1].idxEnd,
-			});
-			curHillIDX++;
+			currentHill.idxEnd = culledHills[curCulledHillIDX].idxEnd;
+			curCulledHillIDX++;
+		} else {
+			combinedHills.push(currentHill);
+			curCulledHillIDX++;
+			currentHill = culledHills[curCulledHillIDX];
 		}
 	}
 
