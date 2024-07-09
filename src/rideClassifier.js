@@ -530,11 +530,56 @@ function getHillFragments(ride) {
  * @returns {Array} - Array of cleaned hill fragments
  */
 function cleanHillFragments(ride, hillFragments) {
+	const hillGap = `200`;
+
 	let cleanedHills = [];
 	// Remove hills that are under 3% gradient
-	// Combine hills that are within like 200m of eahc otehr and the sapce in
-	// between has gradient of <3%
+	// Combine hills that are within like 200m of eahc otehr
 	// Finally, remove hills that are under 200m long
+
+	let culledHills = [];
+	for (hill of hillFragments) {
+		if (
+			(ride.altitude_stream.data[hill.idxEnd] -
+				ride.altitude_stream.data[hill.idxStart]) /
+				(ride.distance_stream.data[hill.idxEnd] -
+					ride.distance_stream.data[hill.idxStart]) >
+			0.03
+		) {
+			culledHills.push(hill);
+		}
+	}
+
+	let combinedHills = [];
+	let curHillIDX = 0;
+
+	while (curHillIDX < culledHills.length - 1) {
+		let endOfCurrentHill = culledHills[curHillIDX].idxEnd;
+		let startOfNextHill = culledHills[curHillIDX + 1].idxStart;
+
+		if (
+			ride.distance_stream.data[startOfNextHill] -
+				ride.distance_stream.data[endOfCurrentHill] <=
+			hillGap
+		) {
+			combinedHills.push({
+				idxStart: culledHills[curHillIDX].idxStart,
+				idxEnd: culledHills[curHillIDX + 1].idxEnd,
+			});
+			curHillIDX++;
+		}
+	}
+
+	for (let hill of combinedHills) {
+		if (
+			ride.distance_stream.data[hill.idxEnd] -
+				ride.distance_stream.data[hill.idxStart] >=
+			200
+		) {
+			cleanedHills.push(hill);
+		}
+	}
+
 	return cleanedHills;
 }
 
