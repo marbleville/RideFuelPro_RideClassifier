@@ -457,12 +457,56 @@ function getHillFragments(ride) {
 	let curIDX = 0;
 	let startIDX = 0;
 
+	let altitudeStream = ride.altitude_stream.data;
+
 	/**
 	 * Gradient ascent/descent
 	 * Work idx by idx, but if altitude stopts going up/down, look
 	 * `falseFlatDistance` ahead to see if it is a false flat
 	 */
-	while (curIDX < ride.altitude_stream.data.length) {}
+	while (curIDX < ride.altitude_stream.data.length) {
+		if (curIDX >= altitudeStream.length - 1) {
+			break;
+		}
+
+		if (
+			gradientAscent
+				? altitudeStream[curIDX] < altitudeStream[curIDX + 1]
+				: altitudeStream[curIDX] > altitudeStream[curIDX + 1]
+		) {
+			curIDX++;
+			continue;
+		} else if (
+			// Look ahead for false flat
+			gradientAscent
+				? altitudeStream[curIDX] <
+				  altitudeStream[
+						getIdxOfPointXMetersAhead(
+							ride,
+							curIDX,
+							falseFlatDistance
+						)
+				  ]
+				: altitudeStream[curIDX] >
+				  altitudeStream[
+						getIdxOfPointXMetersAhead(
+							ride,
+							curIDX,
+							falseFlatDistance
+						)
+				  ]
+		) {
+			curIDX = getIdxOfPointXMetersAhead(ride, curIDX, falseFlatDistance);
+			continue;
+		} else {
+			// Found the end of the hill
+			hillFragments.push({ idxStart: startIDX, idxEnd: curIDX });
+			startIDX = curIDX;
+			gradientAscent = !gradientAscent;
+		}
+	}
+
+	return hillFragments;
 }
 
 /**
