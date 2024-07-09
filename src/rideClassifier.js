@@ -463,7 +463,7 @@ function getHillFragments(ride) {
 	let gradientAscent = true;
 
 	// Distance in meters to consider a false flat as part of a hill
-	let falseFlatDistance = 50;
+	const falseFlatDistance = 50;
 
 	let curIDX = 0;
 	let startIDX = 0;
