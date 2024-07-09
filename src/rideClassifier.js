@@ -92,7 +92,9 @@ function getRideType(ride, ftp) {
  * @returns {rideEntry} - Ride object with missing values calculated
  */
 function calculateMissingRideValues(ride, ftp) {
-	ride.hills = findHills(ride, "uphill").concat(findHills(ride, "downhill"));
+	// ride.hills = findHills(ride, "uphill").concat(findHills(ride, "downhill"));
+
+	ride.hills = findHills(ride);
 
 	ride.average_watts_uphill = getUphillWatts(ride);
 	ride.average_watts_downhill = getDownhillWatts(ride);
@@ -425,151 +427,42 @@ function getAverageUphillGradient(ride) {
  * Finds hills (both up and down) in a ride and adds them to the ride object
  *
  * @param {rideEntry} ride - Ride object to find hills from
- * @param {String} setting - "uphill" or "downhill" to find up or down hills
  *
  * @returns {Array} - Array of hillEntries found in the ride
  */
-function findHills(ride, setting) {
-	if (!(setting === "uphill" || setting === "downhill")) {
-		console.error("Invalid setting for findHills");
-	}
-
-	const MIN_GRADE = 0.02;
-	const MIN_DISTANCE = 300;
-	const MAX_FALSE_FLAT_DISTANCE = 200;
-	const SEARCH_INCREMENT = 50;
-
+function findHills(ride) {
 	let hills = [];
 
-	/**
-	 * Algorithm to find hills:
-	 * - Set a minimum grade for hills
-	 * - Set a minimum distance for hills
-	 * - Iterate through the altitude stream
-	 * 		- At each point, check if the grade between the point 100m away is
-	 * 		  greater than the minimum grade
-	 * 		- If it is, store the idx of that point
-	 *  	- Iterate through rest of points until the grade between points
-	 * 		  flattens
-	 * 			- Store this point and keep looking
-	 * 			- If grade begins to go down or stays flat for 200m,
-	 * 			  store this point as the end of the hill
-	 * 		    - If not, keep looking
-	 * - Calculate the distance, elevation gain, average gradient,
-	 *   average speed, and average watts for each hill
-	 * - Repeat for downhills
-	 */
-	for (
-		let i = 0;
-		i < ride.distance_stream.data.length;
-		i = getIdxOfPointXMetersAhead(ride, i, SEARCH_INCREMENT)
-	) {
-		let hillStart = i;
-		let idxMinDistMetersAhead = getIdxOfPointXMetersAhead(
-			ride,
-			i,
-			MIN_DISTANCE
-		);
-
-		// If the end of the stream is reached
-		if (idxMinDistMetersAhead === -1) {
-			break;
-		}
-
-		// If the grade is not steep enough, continue
-		let startGrade =
-			(ride.altitude_stream.data[idxMinDistMetersAhead] -
-				ride.altitude_stream.data[hillStart]) /
-			(ride.distance_stream.data[idxMinDistMetersAhead] -
-				ride.distance_stream.data[hillStart]);
-
-		if (
-			setting === "uphill"
-				? startGrade <= MIN_GRADE
-				: startGrade >= -MIN_GRADE
-		) {
-			continue;
-		}
-
-		// Find the end of the hill
-		let hillEndFound = false;
-		let hillEndIdx = -1;
-
-		// Search hill in 50m increments
-		for (
-			let j = idxMinDistMetersAhead;
-			!hillEndFound && j < ride.distance_stream.data.length;
-			j = getIdxOfPointXMetersAhead(ride, j, SEARCH_INCREMENT)
-		) {
-			let segmentGrade =
-				(ride.altitude_stream.data[
-					getIdxOfPointXMetersAhead(ride, j, 50)
-				] -
-					ride.altitude_stream.data[j]) /
-				(ride.distance_stream.data[
-					getIdxOfPointXMetersAhead(ride, j, 50)
-				] -
-					ride.distance_stream.data[j]);
-
-			// End of hill not found yet
-			if (
-				setting === "uphill"
-					? segmentGrade >= MIN_GRADE
-					: segmentGrade <= -MIN_GRADE
-			) {
-				continue;
-			}
-
-			// Check for false flat
-			let idxFALSEFLATMetersAhead = getIdxOfPointXMetersAhead(
-				ride,
-				j,
-				MAX_FALSE_FLAT_DISTANCE
-			);
-			let idxNextSegment = getIdxOfPointXMetersAhead(
-				ride,
-				idxFALSEFLATMetersAhead,
-				MAX_FALSE_FLAT_DISTANCE + 50
-			);
-
-			// Calculate the grade of the 50m segment 200m ahead
-			let nextSegmentGrade =
-				(ride.altitude_stream.data[idxFALSEFLATMetersAhead] -
-					ride.altitude_stream.data[idxNextSegment]) /
-				(ride.distance_stream.data[idxFALSEFLATMetersAhead] -
-					ride.distance_stream.data[idxNextSegment]);
-
-			// If the grade is steep enough, continue
-			if (
-				setting === "uphill"
-					? nextSegmentGrade >= MIN_GRADE
-					: nextSegmentGrade <= -MIN_GRADE
-			) {
-				j = idxNextSegment;
-				continue;
-			}
-
-			// If the grade is not steep enough, end the hill
-			hillEndFound = true;
-			hillEndIdx = j;
-
-			// Push the starts and ends of the hills to the hills array
-			let hill = Object.create(hillEntry);
-			hill.idxStart = hillStart;
-			hill.idxEnd = hillEndIdx;
-
-			hills.push(hill);
-
-			i = hillEndIdx;
-		}
-	}
-
-	// fill in the rest of the hill values
-	hills.map((hill) => {
-		hill = getHillValues(hill, ride);
-	});
-
 	return hills;
+}
+
+/**
+ * Finds hill fragments (both up and down) in a ride and returns an array of
+ * the start and end indexes of the hills
+ *
+ * @param {rideEntry} ride - Ride object to find hills from
+ *
+ * @returns {Array} - Array of tuples of the start and end indexs of hill
+ * 					  fragments found in the ride
+ */
+function getHillFragments(ride) {
+	let hillFragments = [];
+
+	// true if looking for uphill hills, false if looking for downhill hills
+	let gradientAscent = true;
+
+	// Distance in meters to consider a false flat as part of a hill
+	let falseFlatDistance = 50;
+
+	let curIDX = 0;
+	let startIDX = 0;
+
+	/**
+	 * Gradient ascent/descent
+	 * Work idx by idx, but if altitude stopts going up/down, look
+	 * `falseFlatDistance` ahead to see if it is a false flat
+	 */
+	while (curIDX < ride.altitude_stream.data.length) {}
 }
 
 /**
