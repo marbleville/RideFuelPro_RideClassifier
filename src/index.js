@@ -6,7 +6,7 @@ const {
 	calculateMissingRideValues,
 	findHills,
 	getCleanPowerStream,
-} = require("./rideClassifier.js");
+} = require("./rideEntry.js");
 const { drawRideAltitude, drawRidePower } = require("./graphRides.js");
 
 /**

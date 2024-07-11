@@ -2,7 +2,7 @@
 var vega = require("vega");
 var fs = require("fs");
 const sharp = require("sharp");
-const { rideEntry, hillEntry, intervalEntry } = require("./rideClassifier.js");
+const { rideEntry, hillEntry, intervalEntry } = require("./rideEntry.js");
 const { sign } = require("crypto");
 const graphWidthInPixels = 1920;
 const graphHeightInPixels = 540;
