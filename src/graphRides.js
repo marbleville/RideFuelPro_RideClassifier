@@ -1,9 +1,9 @@
 // START vega-demo.js
-var vega = require("vega");
-var fs = require("fs");
-const sharp = require("sharp");
-const { rideEntry, hillEntry, intervalEntry } = require("./rideEntry.js");
-const { sign } = require("crypto");
+import vega from "vega";
+import fs from "fs";
+import sharp from "sharp";
+import { rideEntry, hillEntry, intervalEntry } from "./types.js";
+
 const graphWidthInPixels = 1920;
 const graphHeightInPixels = 540;
 
@@ -236,9 +236,9 @@ function drawDataStream(
  *
  * @param {rideEntry} ride - Ride object to be graphed
  */
-function drawRideAltitude(ride) {
-	let dataStream = ride.altitude_stream.data;
-	let distanceStream = ride.distance_stream.data;
+export function drawRideAltitude(ride) {
+	let dataStream = ride.altitude_stream;
+	let distanceStream = ride.distance_stream;
 	let intervalSpecs = [];
 
 	for (let hill of ride.hills) {
@@ -261,7 +261,7 @@ function drawRideAltitude(ride) {
  *
  * @param {rideEntry} ride - Ride object to be graphed
  */
-function drawRidePower(ride) {
+export function drawRidePower(ride) {
 	let dataStream = ride.power_stream.data;
 	let distanceStream = ride.distance_stream.data;
 	let intervalSpecs = [];
@@ -286,5 +286,3 @@ function drawRidePower(ride) {
 		ride.average_watts
 	);
 }
-
-module.exports = { drawRideAltitude, drawRidePower };

@@ -1,19 +1,25 @@
-import { hillEntry, rideEntry } from ".types";
-
-export function findHills() {}
+import { hillEntry, rideEntry } from "./types.js";
+import { getIdxOfPointXUnitAhead, getGradient } from "./utils.js";
 
 /**
- * Finds hills (both up and down) in a ride and adds them to the ride object
+ * Finds hills (both up and down) in a ride and adds them to the ride object.
+ * altitudeSteam and distanceStream are assumed to be the same length and values
+ * at each index correspond to the same point in time.
  *
- * @param {rideEntry} ride - Ride object to find hills from
+ * @param {Array<Number>} altitudeStream Altitude stream of the ride
+ * @param {Array<Number>} distanceStream Distance stream of the ride
  *
- * @returns {Array} - Array of hillEntries found in the ride
+ * @returns {Array} Array of hillEntries found in the ride
  */
-function findHills(ride) {
+export function findHills(altitudeStream, distanceStream) {
 	let hills = [];
 
-	let hillFragments = getHillFragments(ride);
-	let cleanedHills = cleanHillFragments(ride, hillFragments);
+	let hillFragments = getHillFragments(altitudeStream, distanceStream);
+	let cleanedHills = cleanHillFragments(
+		altitudeStream,
+		distanceStream,
+		hillFragments
+	);
 
 	for (let hill of cleanedHills) {
 		let hillEnt = Object.create(hillEntry);
@@ -30,12 +36,13 @@ function findHills(ride) {
  * Finds hill fragments (both up and down) in a ride and returns an array of
  * the start and end indexes of the hills
  *
- * @param {rideEntry} ride - Ride object to find hills from
+ * @param {Array<Number>} altitudeStream Altitude stream of the ride
+ * @param {Array<Number>} distanceStream Distance stream of the ride
  *
  * @returns {Array} - Array of tuples of the start and end indexs of hill
  * 					  fragments found in the ride
  */
-function getHillFragments(ride) {
+function getHillFragments(altitudeStream, distanceStream) {
 	let hillFragments = [];
 
 	// true if looking for uphill hills, false if looking for downhill hills
@@ -47,14 +54,12 @@ function getHillFragments(ride) {
 	let curIDX = 0;
 	let startIDX = 0;
 
-	let altitudeStream = ride.altitude_stream.data;
-
 	/**
 	 * Gradient ascent/descent
 	 * Work idx by idx, but if altitude stopts going up/down, look
 	 * `falseFlatDistance` ahead to see if it is a false flat
 	 */
-	while (curIDX < ride.altitude_stream.data.length) {
+	while (curIDX < altitudeStream.length) {
 		if (curIDX >= altitudeStream.length - 1) {
 			break;
 		}
@@ -71,22 +76,26 @@ function getHillFragments(ride) {
 			gradientAscent
 				? altitudeStream[curIDX] <
 				  altitudeStream[
-						getIdxOfPointXMetersAhead(
-							ride,
+						getIdxOfPointXUnitAhead(
+							distanceStream,
 							curIDX,
 							falseFlatDistance
 						)
 				  ]
 				: altitudeStream[curIDX] >
 				  altitudeStream[
-						getIdxOfPointXMetersAhead(
-							ride,
+						getIdxOfPointXUnitAhead(
+							distanceStream,
 							curIDX,
 							falseFlatDistance
 						)
 				  ]
 		) {
-			curIDX = getIdxOfPointXMetersAhead(ride, curIDX, falseFlatDistance);
+			curIDX = getIdxOfPointXUnitAhead(
+				distanceStream,
+				curIDX,
+				falseFlatDistance
+			);
 			continue;
 		} else {
 			// Found the end of the hill
@@ -104,12 +113,13 @@ function getHillFragments(ride) {
  * Cleans the hill fragments of a ride by removing any fragments that are too
  * short or shallow and combining hill that are likley together
  *
- * @param {rideEntry} ride
+ * @param {Array<Number>} altitudeStream Altitude stream of the ride
+ * @param {Array<Number>} distanceStream Distance stream of the ride
  * @param {Array<{idxStart, idxEnd}>} hillFragments
  *
  * @returns {Array} - Array of cleaned hill fragments
  */
-function cleanHillFragments(ride, hillFragments) {
+function cleanHillFragments(altitudeStream, distanceStream, hillFragments) {
 	const hillGap = 200;
 	const minGradient = 0.02;
 
@@ -120,11 +130,12 @@ function cleanHillFragments(ride, hillFragments) {
 
 	let culledHills = [];
 	for (hill of hillFragments) {
-		let gradient =
-			(ride.altitude_stream.data[hill.idxEnd] -
-				ride.altitude_stream.data[hill.idxStart]) /
-			(ride.distance_stream.data[hill.idxEnd] -
-				ride.distance_stream.data[hill.idxStart]);
+		let gradient = getGradient(
+			altitudeStream,
+			distanceStream,
+			hill.idxStart,
+			hill.idxEnd
+		);
 
 		if (
 			!Number.isNaN(gradient) &&
@@ -146,8 +157,8 @@ function cleanHillFragments(ride, hillFragments) {
 
 		// fix combining hills of different gradients
 		if (
-			ride.distance_stream.data[startOfNextHill] -
-				ride.distance_stream.data[endOfCurrentHill] <=
+			distanceStream[startOfNextHill] -
+				distanceStream[endOfCurrentHill] <=
 			hillGap
 		) {
 			currentHill.idxEnd = culledHills[curCulledHillIDX].idxEnd;
@@ -161,8 +172,7 @@ function cleanHillFragments(ride, hillFragments) {
 
 	for (let hill of combinedHills) {
 		if (
-			ride.distance_stream.data[hill.idxEnd] -
-				ride.distance_stream.data[hill.idxStart] >=
+			distanceStream[hill.idxEnd] - distanceStream[hill.idxStart] >=
 			200
 		) {
 			cleanedHills.push(hill);
@@ -170,40 +180,4 @@ function cleanHillFragments(ride, hillFragments) {
 	}
 
 	return cleanedHills;
-}
-
-/**
- * Given a hillEntry with a start and end index, calculates the distance,
- * elevation gain, average gradient, average speed, and average watts from the
- * rideEntry that contins this hill
- *
- * @param {hillEntry} hill - Hill object to calculate values for
- * @param {rideEntry} ride - Ride object whcih contains the given hill
- */
-function getHillValues(hill, ride) {
-	hill.distance =
-		ride.distance_stream.data[hill.idxEnd] -
-		ride.distance_stream.data[hill.idxStart];
-
-	hill.elevationGain =
-		ride.altitude_stream.data[hill.idxEnd] -
-		ride.altitude_stream.data[hill.idxStart];
-
-	hill.averageGradient =
-		(ride.altitude_stream.data[hill.idxEnd] -
-			ride.altitude_stream.data[hill.idxStart]) /
-		(ride.distance_stream.data[hill.idxEnd] -
-			ride.distance_stream.data[hill.idxStart]);
-
-	hill.averageSpeed =
-		hill.distance /
-		(ride.time_stream.data[hill.idxEnd] -
-			ride.time_stream.data[hill.idxStart]);
-
-	hill.averageWatts = 0;
-	let idxDifferece = hill.idxEnd - hill.idxStart;
-
-	for (let i = hill.idxStart; i < hill.idxEnd; i++) {
-		hill.averageWatts += ride.power_stream.data[i] / idxDifferece;
-	}
 }

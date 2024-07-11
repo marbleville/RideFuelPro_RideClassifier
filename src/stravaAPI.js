@@ -1,5 +1,6 @@
-const fetch = require("node-fetch");
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
+import fetch from "node-fetch";
 
 /**
  * Uses refresh token to get new access token
@@ -7,7 +8,7 @@ require("dotenv").config();
  * @returns {Promise} - Promise object represents the JSON of the new
  * 						access token
  */
-async function reAuthorize() {
+export async function reAuthorize() {
 	try {
 		const authLink = "https://www.strava.com/api/v3/oauth/token";
 		// Fetch new access token
@@ -48,7 +49,7 @@ async function checkAccessTokenExpiration() {
  * @param {number} page - Page number
  * @returns {Promise} - Promise object represents the JSON of activities
  */
-async function getActivites(perPage, page) {
+export async function getActivites(perPage, page) {
 	await checkAccessTokenExpiration();
 	const activitiesLink =
 		`https://www.strava.com/api/v3/athlete/activities?` +
@@ -71,7 +72,7 @@ async function getActivites(perPage, page) {
  * @param {number} id - Activity id
  * @returns {Promise} - Promise object represents the JSON of the power stream
  */
-async function getActivityStreams(id) {
+export async function getActivityStreams(id) {
 	await checkAccessTokenExpiration();
 	const streamLink =
 		`https://www.strava.com/api/v3/activities/${id}` +
@@ -87,9 +88,3 @@ async function getActivityStreams(id) {
 		console.log(error);
 	}
 }
-
-module.exports = {
-	reAuthorize,
-	getActivityStreams,
-	getActivites,
-};

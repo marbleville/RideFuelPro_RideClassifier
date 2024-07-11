@@ -1,13 +1,8 @@
-const fs = require("fs");
-const api = require("./stravaAPI.js");
-const {
-	rideEntry,
-	typeOfRide,
-	calculateMissingRideValues,
-	findHills,
-	getCleanPowerStream,
-} = require("./rideEntry.js");
-const { drawRideAltitude, drawRidePower } = require("./graphRides.js");
+import { writeFileSync, readFileSync } from "fs";
+import { getActivites, getActivityStreams } from "./stravaAPI.js";
+import { calculateMissingRideValues } from "./rideEntry.js";
+import { drawRideAltitude, drawRidePower } from "./graphRides.js";
+import { rideEntry, typeOfRide } from "./types.js";
 
 /**
  * Retuns an array of num activities
@@ -23,7 +18,7 @@ async function getNumActivites(num) {
 
 	// Load num rides into the activities array
 	while (activities.length < num) {
-		let json = await api.getActivites(perPage, page);
+		let json = await getActivites(perPage, page);
 
 		for (activity of json) {
 			// only add rides to the activities array
@@ -46,7 +41,7 @@ async function getNumActivites(num) {
  * @param {Array} rides
  * @returns {Array} - Array of refactored rides
  */
-async function refactorRides(rides) {
+async function refactorStravaRides(rides) {
 	let refactoredRides = [];
 
 	for (let ride of rides) {
@@ -75,12 +70,14 @@ async function refactorRides(rides) {
 		rideData.hills = [];
 
 		// Get streams
-		let powerStream = await api.getActivityStreams(ride.id);
+		let powerStream = await getActivityStreams(ride.id);
 
-		rideData.power_stream = powerStream.watts;
-		rideData.altitude_stream = powerStream.altitude;
-		rideData.distance_stream = powerStream.distance;
-		rideData.time_stream = powerStream.time;
+		console.log(powerStream);
+
+		rideData.power_stream = powerStream.watts.data;
+		rideData.altitude_stream = powerStream.altitude.data;
+		rideData.distance_stream = powerStream.distance.data;
+		rideData.time_stream = powerStream.time.data;
 
 		refactoredRides.push(rideData);
 	}
@@ -120,14 +117,11 @@ async function main() {
 	let ftp = parseInt(args[1]);
 
 	let activites = await getNumActivites(num);
-	activites = await refactorRides(activites);
+	activites = await refactorStravaRides(activites);
 	activites = calculateMissingRideValuesArray(activites, ftp);
 
 	try {
-		fs.writeFileSync(
-			"../resources/activites.json",
-			JSON.stringify(activites)
-		);
+		writeFileSync("../resources/activites.json", JSON.stringify(activites));
 		return 0;
 	} catch (error) {
 		console.error(error);
@@ -135,9 +129,9 @@ async function main() {
 	}
 }
 
-function testCalculateMissingRideValuesArray() {
+async function testCalculateMissingRideValuesArray() {
 	try {
-		const data = fs.readFileSync("../resources/activites.json", "utf8");
+		const data = readFileSync("../resources/activites.json", "utf8");
 		let rides = JSON.parse(data);
 		calculateMissingRideValuesArray(rides, 250);
 		//rides[0].power_stream.data = getCleanPowerStream(rides[0]);

@@ -1,4 +1,4 @@
-import { typeOfRide, rideEntry } from ".types";
+import { typeOfRide, rideEntry } from "./types.js";
 
 /**
  * Returns the type of ride based on the rideEntry object

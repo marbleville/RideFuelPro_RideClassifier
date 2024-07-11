@@ -1,4 +1,5 @@
-import { intervalEntry, rideEntry } from ".types";
+import { intervalEntry, rideEntry } from "./types.js";
+import LowpassFilter from "lowpassf";
 
 /**
  * Finds intervals in a ride and adds them to the ride object

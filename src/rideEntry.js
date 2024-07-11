@@ -1,8 +1,8 @@
-var LowpassFilter = require("lowpassf");
-
-import { rideEntry } from ".types";
-import { findHills } from "./hillFinder";
-import { findIntervals } from "./intervalFinder";
+import { rideEntry } from "./types.js";
+import { findHills } from "./hillFinder.js";
+import { findIntervals } from "./intervalFinder.js";
+import { getGradient } from "./utils.js";
+import { getRideType } from "./rideClassifier.js";
 
 /**
  * Calculates the missing values for a single ride
@@ -27,6 +27,11 @@ import { findIntervals } from "./intervalFinder";
  */
 export function calculateMissingRideValues(ride, ftp) {
 	ride.hills = findHills(ride);
+
+	for (hill of ride.hills) {
+		getHillValues(hill, ride);
+	}
+
 	ride.average_watts_uphill = getUphillWatts(ride);
 	ride.average_watts_downhill = getDownhillWatts(ride);
 	ride.average_watts_flat = getFlatWatts(ride);
@@ -42,6 +47,40 @@ export function calculateMissingRideValues(ride, ftp) {
 	ride.workout_type = getRideType(ride, ftp);
 
 	return ride;
+}
+
+/**
+ * Given a hillEntry with a start and end index, calculates the distance,
+ * elevation gain, average gradient, average speed, and average watts from the
+ * rideEntry that contins this hill
+ *
+ * @param {hillEntry} hill - Hill object to calculate values for
+ * @param {rideEntry} ride - Ride object whcih contains the given hill
+ */
+function getHillValues(hill, ride) {
+	hill.distance =
+		ride.distance_stream[hill.idxEnd] - ride.distance_stream[hill.idxStart];
+
+	hill.elevationGain =
+		ride.altitude_stream[hill.idxEnd] - ride.altitude_stream[hill.idxStart];
+
+	hill.averageGradient = getGradient(
+		ride.altitude_stream,
+		ride.distance_stream,
+		hill.idxStart,
+		hill.idxEnd
+	);
+
+	hill.averageSpeed =
+		hill.distance /
+		(ride.time_stream[hill.idxEnd] - ride.time_stream[hill.idxStart]);
+
+	hill.averageWatts = 0;
+	let idxDifferece = hill.idxEnd - hill.idxStart;
+
+	for (let i = hill.idxStart; i < hill.idxEnd; i++) {
+		hill.averageWatts += ride.power_stream[i] / idxDifferece;
+	}
 }
 
 /**

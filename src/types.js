@@ -1,5 +1,5 @@
 // Object contianing the different types of rides
-const typeOfRide = {
+export const typeOfRide = {
 	intervals: "Intervals",
 	endurance: "Endurance",
 	race: "Race",
@@ -7,7 +7,7 @@ const typeOfRide = {
 };
 
 // Object containing a hill's associated data
-const hillEntry = {
+export const hillEntry = {
 	idxStart: 0,
 	idxEnd: 0,
 	distance: 0,
@@ -17,7 +17,7 @@ const hillEntry = {
 	averageWatts: 0,
 };
 
-const intervalEntry = {
+export const intervalEntry = {
 	idxStart: 0,
 	idxEnd: 0,
 	time: 0,
@@ -25,7 +25,7 @@ const intervalEntry = {
 };
 
 // Object containing a ride's assiciated data
-const rideEntry = {
+export const rideEntry = {
 	name: "",
 	distance: 0,
 	moving_time: 0,
@@ -54,5 +54,3 @@ const rideEntry = {
 	intervals: [],
 	workout_type: "",
 };
-
-export default { typeOfRide, hillEntry, intervalEntry, rideEntry };
