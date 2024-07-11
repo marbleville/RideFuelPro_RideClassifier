@@ -1,3 +1,5 @@
+import { hillEntry, rideEntry } from ".types";
+
 export function findHills() {}
 
 /**
