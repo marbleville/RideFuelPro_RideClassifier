@@ -25,7 +25,6 @@ export function findHills(altitudeStream, distanceStream) {
 		let hillEnt = Object.create(hillEntry);
 		hillEnt.idxStart = hill.idxStart;
 		hillEnt.idxEnd = hill.idxEnd;
-		getHillValues(hillEnt, ride);
 		hills.push(hillEnt);
 	}
 
@@ -125,11 +124,11 @@ function cleanHillFragments(altitudeStream, distanceStream, hillFragments) {
 
 	let cleanedHills = [];
 	// Remove hills that are under 3% gradient
-	// Combine hills that are within like 200m of eahc otehr
+	// Combine hills that are within like 200m of each otehr
 	// Finally, remove hills that are under 200m long
 
 	let culledHills = [];
-	for (hill of hillFragments) {
+	for (let hill of hillFragments) {
 		let gradient = getGradient(
 			altitudeStream,
 			distanceStream,
@@ -141,7 +140,6 @@ function cleanHillFragments(altitudeStream, distanceStream, hillFragments) {
 			!Number.isNaN(gradient) &&
 			(gradient > minGradient || gradient < -minGradient)
 		) {
-			// console.log(gradient);
 			culledHills.push(hill);
 			continue;
 		}

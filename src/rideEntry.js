@@ -26,9 +26,9 @@ import { getRideType } from "./rideClassifier.js";
  * @returns {rideEntry} - Ride object with missing values calculated
  */
 export function calculateMissingRideValues(ride, ftp) {
-	ride.hills = findHills(ride);
+	ride.hills = findHills(ride.altitude_stream, ride.distance_stream);
 
-	for (hill of ride.hills) {
+	for (let hill of ride.hills) {
 		getHillValues(hill, ride);
 	}
 
