@@ -1,5 +1,6 @@
-import { hillEntry, rideEntry } from "./types.js";
+import { hillEntry } from "./types.js";
 import { getIdxOfPointXUnitAhead, getGradient } from "./utils.js";
+import config from "../config/hillFinderConfig.js";
 
 /**
  * Finds hills (both up and down) in a ride and adds them to the ride object.
@@ -48,7 +49,7 @@ function getHillFragments(altitudeStream, distanceStream) {
 	let gradientAscent = true;
 
 	// Distance in meters to consider a false flat as part of a hill
-	const falseFlatDistance = 50;
+	const falseFlatDistance = config.falseFlatDistance;
 
 	let curIDX = 0;
 	let startIDX = 0;
@@ -119,8 +120,8 @@ function getHillFragments(altitudeStream, distanceStream) {
  * @returns {Array} - Array of cleaned hill fragments
  */
 function cleanHillFragments(altitudeStream, distanceStream, hillFragments) {
-	const hillGap = 200;
-	const minGradient = 0.02;
+	const hillGap = config.hillGap;
+	const minGradient = config.minGradient;
 
 	let cleanedHills = [];
 	// Remove hills that are under 3% gradient
