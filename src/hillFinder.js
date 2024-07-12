@@ -149,22 +149,34 @@ function cleanHillFragments(altitudeStream, distanceStream, hillFragments) {
 	let curCulledHillIDX = 1;
 	let currentHill = culledHills[0];
 
-	while (curCulledHillIDX < culledHills.length - 1) {
+	while (curCulledHillIDX <= culledHills.length - 1) {
 		let endOfCurrentHill = currentHill.idxEnd;
 		let startOfNextHill = culledHills[curCulledHillIDX].idxStart;
 
-		// fix combining hills of different gradients
 		if (
 			distanceStream[startOfNextHill] -
 				distanceStream[endOfCurrentHill] <=
-			hillGap
+				hillGap &&
+			getGradient(
+				altitudeStream,
+				distanceStream,
+				currentHill.idxStart,
+				currentHill.idxEnd
+			) *
+				getGradient(
+					altitudeStream,
+					distanceStream,
+					culledHills[curCulledHillIDX].idxStart,
+					culledHills[curCulledHillIDX].idxEnd
+				) >
+				0
 		) {
 			currentHill.idxEnd = culledHills[curCulledHillIDX].idxEnd;
 			curCulledHillIDX++;
 		} else {
 			combinedHills.push(currentHill);
-			curCulledHillIDX++;
 			currentHill = culledHills[curCulledHillIDX];
+			curCulledHillIDX++;
 		}
 	}
 
