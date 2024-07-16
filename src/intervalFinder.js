@@ -1,5 +1,4 @@
 import { intervalEntry, rideEntry } from "./types.js";
-import LowpassFilter from "lowpassf";
 
 /**
  * Finds intervals in a ride and adds them to the ride object
@@ -99,9 +98,13 @@ function getMovingAverageStream(stream, groupSize) {
 	let averagedPowerStream = [...stream];
 
 	// moving average of the power stream to smooth out the data
-	for (let i = groupSize; i < ride.power_stream.length - groupSize; i++) {
+	for (let i = 0; i < stream.length; i++) {
 		let sum = 0;
-		for (let j = i - groupSize; j < i + groupSize; j++) {
+		for (
+			let j = groupSize > i ? 0 : i - groupSize;
+			j < (i + groupSize > stream.length ? stream.length : i + groupSize);
+			j++
+		) {
 			sum += stream[j];
 		}
 		averagedPowerStream[i] = sum / (2 * groupSize);
@@ -109,3 +112,14 @@ function getMovingAverageStream(stream, groupSize) {
 
 	return averagedPowerStream;
 }
+
+/**
+ *
+ * @param {Array<Number>} stream
+ * @param {Number} groupSize
+ * @param {Number} thresholdCoefficient the coefficient to multiply the standard
+ * 										deviation by to determine an outlier
+ *
+ * @returns {Array<Number>} The stream with outliers removed
+ */
+function removeStreamOutliers(stream, groupSize, thresholdCoefficient) {}
