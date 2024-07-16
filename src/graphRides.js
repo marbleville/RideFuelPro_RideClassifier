@@ -262,8 +262,8 @@ export function drawRideAltitude(ride) {
  * @param {rideEntry} ride - Ride object to be graphed
  */
 export function drawRidePower(ride) {
-	let dataStream = ride.power_stream.data;
-	let distanceStream = ride.distance_stream.data;
+	let dataStream = ride.power_stream;
+	let distanceStream = ride.distance_stream;
 	let intervalSpecs = [];
 
 	for (let interval of ride.intervals) {

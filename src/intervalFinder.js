@@ -26,29 +26,29 @@ export function findIntervals(ride) {
 
 	let intervals = [];
 
-	for (let i = 0; i < ride.power_stream.data.length; i += SEARCH_INCREMENT) {
-		// If the end of the stream is reached
-		if (i + SEARCH_INCREMENT >= ride.power_stream.data.length) {
-			break;
-		}
+	// for (let i = 0; i < ride.power_stream.length; i += SEARCH_INCREMENT) {
+	// 	// If the end of the stream is reached
+	// 	if (i + SEARCH_INCREMENT >= ride.power_stream.length) {
+	// 		break;
+	// 	}
 
-		let intervalStart = i;
-		let intervalEnd = i + SEARCH_INCREMENT;
+	// 	let intervalStart = i;
+	// 	let intervalEnd = i + SEARCH_INCREMENT;
 
-		// If the average watts are not high enough, continue
-		let intervalAverageWatts = getIntervalAverageWatts(
-			ride,
-			intervalStart,
-			intervalEnd
-		);
+	// 	// If the average watts are not high enough, continue
+	// 	let intervalAverageWatts = getIntervalAverageWatts(
+	// 		ride,
+	// 		intervalStart,
+	// 		intervalEnd
+	// 	);
 
-		if (intervalAverageWatts < ride.average_watts * INTERVAL_THRESHOLD) {
-			continue;
-		}
+	// 	if (intervalAverageWatts < ride.average_watts * INTERVAL_THRESHOLD) {
+	// 		continue;
+	// 	}
 
-		let greedySearch = true;
-		while (greedySearch) {}
-	}
+	// 	let greedySearch = true;
+	// 	while (greedySearch) {}
+	// }
 
 	return intervals;
 }
@@ -80,49 +80,30 @@ function getIntervalAverageWatts(ride, start, end) {
  *
  * @returns {Array} - Cleaned power stream
  */
-function getCleanPowerStream(ride) {
-	var filter = new LowpassFilter();
-	let noOutliersPowerStream = [...ride.power_stream.data];
+export function getCleanPowerStream(ride) {
+	let averagedPowerStream = [...ride.power_stream];
 
-	// remove outliers
-	for (let i = 0; i < noOutliersPowerStream.length; i++) {
-		if (noOutliersPowerStream[i] < 50) {
-			noOutliersPowerStream[i] = ride.average_watts;
-		}
-
-		if (
-			noOutliersPowerStream[i] > ride.average_watts &&
-			noOutliersPowerStream[i] < ride.average_watts * 1.3
-		) {
-			noOutliersPowerStream[i] = ride.average_watts;
-		}
-	}
-
-	let cleanPowerStream = [];
-
-	filter.setLogic(filter.LinearWeightAverage);
-	for (let i = 0; i < noOutliersPowerStream.length; i++) {
-		//put current value
-		filter.putValue(noOutliersPowerStream[i]);
-		//Get the latest calculated moving average of the values putted so far
-		var filteredValue = filter.getFilteredValue();
-		cleanPowerStream.push(filteredValue);
-	}
-
-	// average the power stream in 20 index increments
-	let averagedPowerStream = [];
-	let sum = 0;
-	let count = 0;
-	for (let i = 0; i < cleanPowerStream.length; i++) {
-		sum += cleanPowerStream[i];
-		count++;
-
-		if (count === 20) {
-			averagedPowerStream.push(sum / 20);
-			sum = 0;
-			count = 0;
-		}
-	}
+	// moving average of the power stream to smooth out the data
+	for (let i = 0; i <= ride.power_stream.length - 1; i++) {}
 
 	return averagedPowerStream;
+}
+
+/**
+ * Returns the average from start to start + x of the given array
+ *
+ * @param {Number} number the number of the element to average
+ * @param {Number} start the start index of the array to average
+ * @param {Array<Number>} array the array to average
+ *
+ * @returns {Number} the average of the array from start to start + x
+ */
+function getXElementAverage(number, start, array) {
+	let sum = 0;
+
+	for (let i = start; i <= array.length - 1; i++) {
+		sum += array[i][number];
+	}
+
+	return sum / array.length;
 }
