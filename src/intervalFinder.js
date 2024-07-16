@@ -83,39 +83,29 @@ function getIntervalAverageWatts(ride, start, end) {
 export function getCleanPowerStream(ride) {
 	const smoothAlgGroupSize = 10;
 
-	let averagedPowerStream = [...ride.power_stream];
-
-	// moving average of the power stream to smooth out the data
-	for (
-		let i = smoothAlgGroupSize;
-		i < ride.power_stream.length - smoothAlgGroupSize;
-		i++
-	) {
-		let sum = 0;
-		for (let j = i - smoothAlgGroupSize; j < i + smoothAlgGroupSize; j++) {
-			sum += ride.power_stream[j];
-		}
-		averagedPowerStream[i] = sum / (2 * smoothAlgGroupSize);
-	}
-
-	return averagedPowerStream;
+	return getMovingAverageStream(ride.power_stream, smoothAlgGroupSize);
 }
 
 /**
- * Returns the average from start to start + x of the given array
+ * Returns the moving average of a stream
  *
- * @param {Number} number the number of the element to average
- * @param {Number} start the start index of the array to average
- * @param {Array<Number>} array the array to average
+ * @param {Array<Number>} stream The stream to smooth
+ * @param {Number} groupSize The size of the group to average on eaither side of
+ * 							 the current index
  *
- * @returns {Number} the average of the array from start to start + x
+ * @returns {Array<Number>} The smoothed stream
  */
-function getXElementAverage(number, start, array) {
-	let sum = 0;
+function getMovingAverageStream(stream, groupSize) {
+	let averagedPowerStream = [...stream];
 
-	for (let i = start; i <= array.length - 1; i++) {
-		sum += array[i][number];
+	// moving average of the power stream to smooth out the data
+	for (let i = groupSize; i < ride.power_stream.length - groupSize; i++) {
+		let sum = 0;
+		for (let j = i - groupSize; j < i + groupSize; j++) {
+			sum += stream[j];
+		}
+		averagedPowerStream[i] = sum / (2 * groupSize);
 	}
 
-	return sum / array.length;
+	return averagedPowerStream;
 }
