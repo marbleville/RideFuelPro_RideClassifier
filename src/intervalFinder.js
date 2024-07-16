@@ -81,10 +81,22 @@ function getIntervalAverageWatts(ride, start, end) {
  * @returns {Array} - Cleaned power stream
  */
 export function getCleanPowerStream(ride) {
+	const smoothAlgGroupSize = 10;
+
 	let averagedPowerStream = [...ride.power_stream];
 
 	// moving average of the power stream to smooth out the data
-	for (let i = 0; i <= ride.power_stream.length - 1; i++) {}
+	for (
+		let i = smoothAlgGroupSize;
+		i < ride.power_stream.length - smoothAlgGroupSize;
+		i++
+	) {
+		let sum = 0;
+		for (let j = i - smoothAlgGroupSize; j < i + smoothAlgGroupSize; j++) {
+			sum += ride.power_stream[j];
+		}
+		averagedPowerStream[i] = sum / (2 * smoothAlgGroupSize);
+	}
 
 	return averagedPowerStream;
 }
