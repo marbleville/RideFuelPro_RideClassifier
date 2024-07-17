@@ -26,30 +26,6 @@ export function findIntervals(ride) {
 
 	let intervals = [];
 
-	// for (let i = 0; i < ride.power_stream.length; i += SEARCH_INCREMENT) {
-	// 	// If the end of the stream is reached
-	// 	if (i + SEARCH_INCREMENT >= ride.power_stream.length) {
-	// 		break;
-	// 	}
-
-	// 	let intervalStart = i;
-	// 	let intervalEnd = i + SEARCH_INCREMENT;
-
-	// 	// If the average watts are not high enough, continue
-	// 	let intervalAverageWatts = getIntervalAverageWatts(
-	// 		ride,
-	// 		intervalStart,
-	// 		intervalEnd
-	// 	);
-
-	// 	if (intervalAverageWatts < ride.average_watts * INTERVAL_THRESHOLD) {
-	// 		continue;
-	// 	}
-
-	// 	let greedySearch = true;
-	// 	while (greedySearch) {}
-	// }
-
 	return intervals;
 }
 
