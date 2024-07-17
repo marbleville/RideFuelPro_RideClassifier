@@ -82,7 +82,12 @@ function getIntervalAverageWatts(ride, start, end) {
 export function getCleanPowerStream(ride) {
 	const smoothAlgGroupSize = 10;
 
-	return getMovingAverageStream(ride.power_stream, smoothAlgGroupSize);
+	let avgStream = getMovingAverageStream(
+		ride.power_stream,
+		smoothAlgGroupSize
+	);
+
+	return removeStreamOutliers(avgStream, 100, 2);
 }
 
 /**
@@ -114,6 +119,7 @@ function getMovingAverageStream(stream, groupSize) {
 }
 
 /**
+ * Removes outliers from a stream
  *
  * @param {Array<Number>} stream
  * @param {Number} groupSize
@@ -122,4 +128,28 @@ function getMovingAverageStream(stream, groupSize) {
  *
  * @returns {Array<Number>} The stream with outliers removed
  */
-function removeStreamOutliers(stream, groupSize, thresholdCoefficient) {}
+function removeStreamOutliers(stream, groupSize, thresholdCoefficient) {
+	let noOutlierStream = [...stream];
+
+	for (let i = 0; i < stream.length; i += groupSize) {
+		let group = stream.slice(i, i + groupSize);
+		let sum = group.reduce((a, b) => a + b, 0);
+		let groupAverage = sum / groupSize;
+		let standardDeviation = Math.sqrt(
+			group.reduce((a, b) => a + (b - groupAverage) ** 2, 0) / groupSize
+		);
+
+		let upperBound =
+			groupAverage + thresholdCoefficient * standardDeviation;
+		let lowerBound =
+			groupAverage - thresholdCoefficient * standardDeviation;
+
+		for (let j = i; j < i + groupSize; j++) {
+			if (stream[j] > upperBound || stream[j] < lowerBound) {
+				noOutlierStream[j] = groupAverage;
+			}
+		}
+	}
+
+	return noOutlierStream;
+}
