@@ -20,11 +20,32 @@ export function findIntervals(ride) {
 	 * 			greeding searhc moves interval ends by 10 indexes at a time
 	 */
 
-	const INTERVAL_THRESHOLD = 1.2;
-	const SEARCH_INCREMENT = 50;
-	const GREEDY_SEARCH_INCREMENT = 10;
+	const searchChunkSize = 50;
 
 	let intervals = [];
+
+	let powerStream = getCleanPowerStream(ride);
+	let avgWatts = getIntervalAverageWatts(ride, 0, powerStream.length);
+
+	for (
+		let i = 0;
+		i < powerStream.length - searchChunkSize;
+		i += searchChunkSize
+	) {
+		let chunkAvgWatts = getIntervalAverageWatts(
+			ride,
+			i,
+			i + searchChunkSize
+		);
+
+		if (chunkAvgWatts < 1.2 * avgWatts) {
+			continue;
+		}
+
+		// interval found
+		let intervalStart = i;
+		let intervalEnd = i + searchChunkSize;
+	}
 
 	return intervals;
 }
@@ -37,15 +58,10 @@ export function findIntervals(ride) {
  * @param {Number} end - End index of the interval
  */
 function getIntervalAverageWatts(ride, start, end) {
-	let sum = 0;
-	let count = 0;
+	let intervalStream = ride.power_stream.slice(start, end);
+	let sum = intervalStream.reduce((a, b) => a + b, 0);
 
-	for (let i = start; i < end; i++) {
-		sum += getCleanPowerStream(ride)[i];
-		count++;
-	}
-
-	return sum / count;
+	return sum / intervalStream.length;
 }
 
 /**
