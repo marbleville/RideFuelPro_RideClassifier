@@ -82,19 +82,32 @@ function getIntervalAverageWatts(ride, start, end) {
 export function getCleanPowerStream(ride) {
 	const smoothAlgGroupSize = 10;
 
-	let avgStream = getMovingAverageStream(
-		ride.power_stream,
-		smoothAlgGroupSize
-	);
+	let noZeroStream = removeZeroValues(ride.power_stream);
+
+	let avgStream = getMovingAverageStream(noZeroStream, smoothAlgGroupSize);
 
 	return removeStreamOutliers(avgStream, 100, 2);
+}
+
+/**
+ * Replaces all zero values in a stream with the average of the stream
+ *
+ * @param {Array<Number>} stream the stream to remove zero values from
+ *
+ * @returns {Array<Number>} The stream with zero values removed
+ */
+function removeZeroValues(stream) {
+	let sum = stream.reduce((a, b) => a + b, 0);
+	let average = sum / stream.length;
+
+	return stream.map((val) => (val === 0 ? average : val));
 }
 
 /**
  * Returns the moving average of a stream
  *
  * @param {Array<Number>} stream The stream to smooth
- * @param {Number} groupSize The size of the group to average on eaither side of
+ * @param {Number} groupSize The size of the group to average on either side of
  * 							 the current index
  *
  * @returns {Array<Number>} The smoothed stream
@@ -104,15 +117,13 @@ function getMovingAverageStream(stream, groupSize) {
 
 	// moving average of the power stream to smooth out the data
 	for (let i = 0; i < stream.length; i++) {
-		let sum = 0;
-		for (
-			let j = groupSize > i ? 0 : i - groupSize;
-			j < (i + groupSize > stream.length ? stream.length : i + groupSize);
-			j++
-		) {
-			sum += stream[j];
-		}
-		averagedPowerStream[i] = sum / (2 * groupSize);
+		let groupStart = i < groupSize ? 0 : i - groupSize;
+		let groupEnd =
+			i + groupSize > stream.length ? stream.length : i + groupSize;
+
+		let group = stream.slice(groupStart, groupEnd);
+		let sum = group.reduce((a, b) => a + b, 0);
+		averagedPowerStream[i] = sum / groupSize;
 	}
 
 	return averagedPowerStream;
@@ -131,7 +142,7 @@ function getMovingAverageStream(stream, groupSize) {
 function removeStreamOutliers(stream, groupSize, thresholdCoefficient) {
 	let noOutlierStream = [...stream];
 
-	for (let i = 0; i < stream.length; i += groupSize) {
+	for (let i = 0; i < stream.length - groupSize; i += groupSize) {
 		let group = stream.slice(i, i + groupSize);
 		let sum = group.reduce((a, b) => a + b, 0);
 		let groupAverage = sum / groupSize;

@@ -278,11 +278,8 @@ export function drawRidePower(ride) {
 
 	let name = ride.name.split(" ").join("-") + "PowerGraph";
 
-	drawDataStream(
-		dataStream,
-		distanceStream,
-		intervalSpecs,
-		name,
-		ride.average_watts
-	);
+	let sumWatts = ride.power_stream.reduce((a, b) => a + b, 0);
+	let avgWatts = sumWatts / ride.power_stream.length;
+
+	drawDataStream(dataStream, distanceStream, intervalSpecs, name, avgWatts);
 }
