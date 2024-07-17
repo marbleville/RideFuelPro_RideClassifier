@@ -1,4 +1,5 @@
 import { intervalEntry, rideEntry } from "./types.js";
+import config from "../config/intervalFinderConfig.js";
 
 /**
  * Finds intervals in a ride and adds them to the ride object
@@ -80,7 +81,9 @@ function getIntervalAverageWatts(ride, start, end) {
  * @returns {Array} - Cleaned power stream
  */
 export function getCleanPowerStream(ride) {
-	const smoothAlgGroupSize = 10;
+	const smoothAlgGroupSize = config.smoothAlgGroupSize;
+	const removeOutliersGroupSize = config.removeOutliersGroupSize;
+	const thresholdCoefficient = config.thresholdCoefficient;
 
 	let noZeroStream = removeZeroValues(ride.power_stream);
 
