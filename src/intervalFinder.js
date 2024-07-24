@@ -94,6 +94,21 @@ export function findIntervals(ride) {
 }
 
 /**
+ * Returns the time of an interval in a ride in milli-seconds
+ *
+ * @param {rideEntry} ride the ride to get interval time for
+ * @param {intervalEntry} interval the interval to get the time of
+ *
+ * @returns {NUmber} the time of the interval in milli-seconds
+ */
+function getTimeOfInterval(ride, interval) {
+	let timeStart = ride.time_stream[interval.idxStart];
+	let timeEnd = ride.time_stream[interval.idxEnd];
+
+	return timeEnd - timeStart;
+}
+
+/**
  * Returns the average watts for an interval in a ride
  *
  * @param {rideEntry} ride - Ride object to calculate interval values from
