@@ -8,7 +8,7 @@ import config from "../config/intervalFinderConfig.js";
  *
  * @returns {Array<intervalEntry>} - Array of interval objects found in the ride
  */
-export function findIntervals(ride) {
+export function findIntervals(ride, ftp) {
 	/**
 	 * Algorithm to find intervals:
 	 *
@@ -37,7 +37,7 @@ export function findIntervals(ride) {
 			i + searchChunkSize
 		);
 
-		if (chunkAvgWatts < config.intervalMinThreshold * ride.average_watts) {
+		if (chunkAvgWatts < config.intervalMinThreshold * ftp) {
 			continue;
 		}
 

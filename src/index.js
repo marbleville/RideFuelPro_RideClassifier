@@ -21,7 +21,7 @@ async function getNumActivites(num) {
 	while (activities.length < num) {
 		let json = await getActivites(perPage, page);
 
-		for (activity of json) {
+		for (let activity of json) {
 			// only add rides to the activities array
 			if (activity.type === "Ride") {
 				activities.push(activity);
@@ -72,8 +72,6 @@ async function refactorStravaRides(rides) {
 
 		// Get streams
 		let powerStream = await getActivityStreams(ride.id);
-
-		console.log(powerStream);
 
 		rideData.power_stream = powerStream.watts.data;
 		rideData.altitude_stream = powerStream.altitude.data;
@@ -130,17 +128,4 @@ async function main() {
 	}
 }
 
-async function testCalculateMissingRideValuesArray() {
-	try {
-		const data = readFileSync("../resources/activites.json", "utf8");
-		let rides = JSON.parse(data);
-		calculateMissingRideValuesArray(rides, 250);
-		// rides[0].power_stream = getCleanPowerStream(rides[0]);
-		console.log(rides[0].workout_type);
-	} catch (err) {
-		console.error(err);
-	}
-}
-
-//main();
-testCalculateMissingRideValuesArray();
+main();
