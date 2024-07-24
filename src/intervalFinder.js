@@ -25,7 +25,6 @@ export function findIntervals(ride) {
 	let intervals = [];
 
 	let powerStream = getCleanPowerStream(ride);
-	let avgWatts = getIntervalAverageWatts(ride, 0, powerStream.length);
 
 	for (
 		let i = 0;
@@ -38,13 +37,57 @@ export function findIntervals(ride) {
 			i + searchChunkSize
 		);
 
-		if (chunkAvgWatts < 1.2 * avgWatts) {
+		if (chunkAvgWatts < config.intervalMinThreshold * ride.average_watts) {
 			continue;
 		}
 
 		// interval found
 		let intervalStart = i;
 		let intervalEnd = i + searchChunkSize;
+
+		// move start
+		let searchStart = true;
+
+		while (searchStart) {
+			let newIntervalStart = intervalStart - 10;
+			let newIntervalAvgWatts = getIntervalAverageWatts(
+				ride,
+				newIntervalStart,
+				intervalEnd
+			);
+			if (newIntervalAvgWatts > chunkAvgWatts) {
+				chunkAvgWatts = newIntervalAvgWatts;
+				intervalStart = newIntervalStart;
+			} else {
+				searchStart = false;
+			}
+		}
+
+		// move end
+		let searchEnd = true;
+		while (searchEnd) {
+			let newIntervalEnd = intervalEnd + 10;
+			let newIntervalAvgWatts = getIntervalAverageWatts(
+				ride,
+				intervalStart,
+				newIntervalEnd
+			);
+			if (newIntervalAvgWatts > chunkAvgWatts) {
+				chunkAvgWatts = newIntervalAvgWatts;
+				intervalEnd = newIntervalEnd;
+			} else {
+				searchEnd = false;
+			}
+		}
+
+		let interval = Object.create(intervalEntry);
+		interval.idxStart = intervalStart;
+		interval.idxEnd = intervalEnd;
+		interval.averageWatts = chunkAvgWatts;
+
+		intervals.push(interval);
+
+		i = intervalEnd;
 	}
 
 	return intervals;
