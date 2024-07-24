@@ -20,7 +20,7 @@ export function findIntervals(ride) {
 	 * 			greeding searhc moves interval ends by 10 indexes at a time
 	 */
 
-	const searchChunkSize = 50;
+	const searchChunkSize = config.searchChunkSize;
 
 	let intervals = [];
 
@@ -119,7 +119,7 @@ function cleanIntervals(ride, intervals) {
 			nextIntervalStart
 		);
 
-		if (timeBetweenIntervals < config.intervalMinGap) {
+		if (timeBetweenIntervals < config.intervalMaxGap) {
 			currentInterval.idxEnd = intervals[i + 1].idxEnd;
 		} else {
 			mergedIntervals.push(currentInterval);
@@ -176,8 +176,6 @@ function getIntervalAverageWatts(ride, start, end) {
  */
 export function getCleanPowerStream(ride) {
 	const smoothAlgGroupSize = config.smoothAlgGroupSize;
-	const removeOutliersGroupSize = config.removeOutliersGroupSize;
-	const thresholdCoefficient = config.thresholdCoefficient;
 
 	let noZeroStream = removeZeroValues(ride.power_stream);
 
