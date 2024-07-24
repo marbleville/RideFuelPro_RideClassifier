@@ -83,7 +83,7 @@ export function findIntervals(ride) {
 		let interval = Object.create(intervalEntry);
 		interval.idxStart = intervalStart;
 		interval.idxEnd = intervalEnd;
-		interval.averageWatts = chunkAvgWatts;
+
 		intervals.push(interval);
 
 		i = intervalEnd;
@@ -122,6 +122,16 @@ function cleanIntervals(ride, intervals) {
 		if (timeBetweenIntervals < config.intervalMaxGap) {
 			currentInterval.idxEnd = intervals[i + 1].idxEnd;
 		} else {
+			currentInterval.time = getTimeOfInterval(
+				ride,
+				currentInterval.idxStart,
+				currentInterval.idxEnd
+			);
+			currentInterval.averageWatts = getIntervalAverageWatts(
+				ride,
+				currentInterval.idxStart,
+				currentInterval.idxEnd
+			);
 			mergedIntervals.push(currentInterval);
 			currentInterval = intervals[i + 1];
 		}

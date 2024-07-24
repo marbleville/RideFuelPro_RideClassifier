@@ -136,7 +136,7 @@ async function testCalculateMissingRideValuesArray() {
 		let rides = JSON.parse(data);
 		calculateMissingRideValuesArray(rides, 250);
 		// rides[0].power_stream = getCleanPowerStream(rides[0]);
-		console.log(rides[0].intervals);
+		console.log(rides[0].intervals, rides[0].average_watts);
 		drawRidePower(rides[0]);
 		//drawRideAltitude(rides[0]);
 	} catch (err) {
