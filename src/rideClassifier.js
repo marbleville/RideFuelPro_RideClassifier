@@ -17,7 +17,9 @@ export function getRideType(ride, ftp) {
 
 	let averageIntervalTime = totalIntervalTime / ride.intervals.length;
 
-	if (totalIntervalTime < config.minTotalIntervalTime) {
+	if (ride.average_watts < ftp * config.restFTPThresholdCoefficient) {
+		return typeOfRide.rest;
+	} else if (totalIntervalTime < config.minTotalIntervalTime) {
 		return typeOfRide.endurance;
 	} else if (
 		ride.average_watts > ftp * config.enduranceFTPThresholdCoefficient &&

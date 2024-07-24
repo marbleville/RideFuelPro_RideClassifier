@@ -3,6 +3,7 @@ export const typeOfRide = {
 	intervals: "Intervals",
 	endurance: "Endurance",
 	race: "Race",
+	rest: "Rest",
 	unknown: "Unknown",
 };
 
