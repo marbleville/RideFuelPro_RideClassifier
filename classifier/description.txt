@@ -1,0 +1,7 @@
+This section of RideFuelPro is the ride classifier. 
+
+Simply, it downlaod ride data from Strava and then classifies each ride as 
+Rest, Endurance, Race, or Interval. 
+
+The classifier will also find each hill in the ride in order to provide context
+for further analysis.
