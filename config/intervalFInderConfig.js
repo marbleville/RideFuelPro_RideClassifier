@@ -4,4 +4,5 @@ export default {
 	thresholdCoefficient: 2,
 	intervalMinThreshold: 1.3,
 	intervalMinTime: 30,
+	intervalMinGap: 30,
 };

@@ -84,13 +84,56 @@ export function findIntervals(ride) {
 		interval.idxStart = intervalStart;
 		interval.idxEnd = intervalEnd;
 		interval.averageWatts = chunkAvgWatts;
+		intervals.push(interval);
 
 		i = intervalEnd;
 	}
 
 	// add cleanup pass to stick nearby intervals together
 
-	return intervals;
+	return cleanIntervals(ride, intervals);
+}
+
+/**
+ * Cleans a set of intervals by merging intervals that are too close together 
+ * and removing intervals that are too short
+ * 
+ * @param {rideEntry} ride the ride to clean intervals from
+ * @param {Array<intervalEntry>} intervals the set of intervals to clean
+ * 
+ * @returns {Array<intervalEntry>} the cleaned set of intervals
+ 
+ */
+function cleanIntervals(ride, intervals) {
+	let mergedIntervals = [];
+
+	let currentInterval = intervals[0];
+
+	for (let i = 0; i < intervals.length - 1; i++) {
+		let intervalEnd = intervals[i].idxEnd;
+		let nextIntervalStart = intervals[i + 1].idxStart;
+
+		let timeBetweenIntervals = getTimeOfInterval(
+			ride,
+			intervalEnd,
+			nextIntervalStart
+		);
+
+		if (timeBetweenIntervals < config.intervalMinGap) {
+			currentInterval.idxEnd = intervals[i + 1].idxEnd;
+		} else {
+			mergedIntervals.push(currentInterval);
+			currentInterval = intervals[i + 1];
+		}
+	}
+
+	let culledIntervals = mergedIntervals.filter(
+		(interval) =>
+			getTimeOfInterval(ride, interval.idxStart, interval.idxEnd) >
+			config.intervalMinTime
+	);
+
+	return culledIntervals;
 }
 
 /**
