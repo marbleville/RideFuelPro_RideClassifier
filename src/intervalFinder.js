@@ -85,7 +85,9 @@ export function findIntervals(ride) {
 		interval.idxEnd = intervalEnd;
 		interval.averageWatts = chunkAvgWatts;
 
-		intervals.push(interval);
+		if (getTimeOfInterval(ride, interval) > config.intervalMinTime) {
+			intervals.push(interval);
+		}
 
 		i = intervalEnd;
 	}
@@ -94,12 +96,12 @@ export function findIntervals(ride) {
 }
 
 /**
- * Returns the time of an interval in a ride in milli-seconds
+ * Returns the time of an interval in a ride in seconds
  *
  * @param {rideEntry} ride the ride to get interval time for
  * @param {intervalEntry} interval the interval to get the time of
  *
- * @returns {NUmber} the time of the interval in milli-seconds
+ * @returns {NUmber} the time of the interval in seconds
  */
 function getTimeOfInterval(ride, interval) {
 	let timeStart = ride.time_stream[interval.idxStart];

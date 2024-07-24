@@ -3,4 +3,5 @@ export default {
 	removeOutliersGroupSize: 100,
 	thresholdCoefficient: 2,
 	intervalMinThreshold: 1.3,
+	intervalMinTime: 30,
 };
