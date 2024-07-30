@@ -38,7 +38,6 @@ export const rideEntry = {
 	average_speed_uphill: 0,
 	average_speed_downhill: 0,
 	average_speed_flat: 0,
-	total_elevation_gain: 0,
 	average_speed: 0,
 	average_watts: 0,
 	average_watts_uphill: 0,
