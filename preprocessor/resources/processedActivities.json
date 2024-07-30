@@ -1,0 +1,102 @@
+[
+  {
+    "distance": 37647.8,
+    "moving_time": 5354,
+    "total_elevation_gain": 124,
+    "distance_uphill": 211.79999999999927,
+    "distance_downhill": 0,
+    "average_uphill_gradient": 0.0037771482530689453,
+    "average_downhill_gradient": null,
+    "workout_type": "Endurance"
+  },
+  {
+    "distance": 32566.7,
+    "moving_time": 5265,
+    "total_elevation_gain": 281,
+    "distance_uphill": 3770.9999999999995,
+    "distance_downhill": 2357.500000000002,
+    "average_uphill_gradient": 0.06134596383559111,
+    "average_downhill_gradient": -0.06611513808583995,
+    "workout_type": "Intervals"
+  },
+  {
+    "distance": 11835.8,
+    "moving_time": 2194,
+    "total_elevation_gain": 35,
+    "distance_uphill": 0,
+    "distance_downhill": 0,
+    "average_uphill_gradient": null,
+    "average_downhill_gradient": null,
+    "workout_type": "Endurance"
+  },
+  {
+    "distance": 75801.8,
+    "moving_time": 10797,
+    "total_elevation_gain": 591,
+    "distance_uphill": 13399.20000000002,
+    "distance_downhill": 11305.399999999994,
+    "average_uphill_gradient": 0.03211477821326208,
+    "average_downhill_gradient": -0.03025610628883991,
+    "workout_type": "Endurance"
+  },
+  {
+    "distance": 63765.6,
+    "moving_time": 8400,
+    "total_elevation_gain": 277,
+    "distance_uphill": 3831.699999999999,
+    "distance_downhill": 2294.2999999999975,
+    "average_uphill_gradient": 0.02628159626500777,
+    "average_downhill_gradient": -0.023677391362077055,
+    "workout_type": "Intervals"
+  },
+  {
+    "distance": 17454.9,
+    "moving_time": 2973,
+    "total_elevation_gain": 52,
+    "distance_uphill": 323.2000000000007,
+    "distance_downhill": 224.8000000000011,
+    "average_uphill_gradient": 0.019801980198019757,
+    "average_downhill_gradient": -0.024021352313167144,
+    "workout_type": "Endurance"
+  },
+  {
+    "distance": 38426,
+    "moving_time": 5319,
+    "total_elevation_gain": 125,
+    "distance_uphill": 291.7000000000007,
+    "distance_downhill": 0,
+    "average_uphill_gradient": 0.0205690778196777,
+    "average_downhill_gradient": null,
+    "workout_type": "Endurance"
+  },
+  {
+    "distance": 35596.3,
+    "moving_time": 5679,
+    "total_elevation_gain": 376,
+    "distance_uphill": 4802.5999999999985,
+    "distance_downhill": 4390.200000000001,
+    "average_uphill_gradient": 0.05714978494799097,
+    "average_downhill_gradient": -0.05931981846002583,
+    "workout_type": "Intervals"
+  },
+  {
+    "distance": 39418.8,
+    "moving_time": 5698,
+    "total_elevation_gain": 136,
+    "distance_uphill": 0,
+    "distance_downhill": 0,
+    "average_uphill_gradient": null,
+    "average_downhill_gradient": null,
+    "workout_type": "Endurance"
+  },
+  {
+    "distance": 12669.5,
+    "moving_time": 2134,
+    "total_elevation_gain": 33,
+    "distance_uphill": 0,
+    "distance_downhill": 571.4,
+    "average_uphill_gradient": null,
+    "average_downhill_gradient": -0.015320112981052136,
+    "workout_type": "Endurance"
+  }
+]

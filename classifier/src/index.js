@@ -120,7 +120,10 @@ async function main() {
 	activites = calculateMissingRideValuesArray(activites, ftp);
 
 	try {
-		writeFileSync("../resources/activites.json", JSON.stringify(activites));
+		writeFileSync(
+			"../resources/activities.json",
+			JSON.stringify(activites)
+		);
 		return 0;
 	} catch (error) {
 		console.error(error);

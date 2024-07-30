@@ -125,8 +125,8 @@ const rideEntryProc = {
 	moving_time: 0,
 	total_elevation_gain: 0,
 	distance_uphill: 0,
-	distance_downhill,
-	average_uphill_gradient,
-	average_downhill_gradient,
-	workout_type,
+	distance_downhill: 0,
+	average_uphill_gradient: 0,
+	average_downhill_gradient: 0,
+	workout_type: "",
 };
