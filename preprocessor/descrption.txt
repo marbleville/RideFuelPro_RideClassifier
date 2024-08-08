@@ -14,3 +14,5 @@ From the RideEntry, the preprocessor will extract the following data points:
 - workout_type
 
 moving_time will be hidden for the test data set.
+
+Use tensorflow.js to modify an existing, general model, in the browser for each individual user. 
