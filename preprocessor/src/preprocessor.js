@@ -55,17 +55,34 @@ function processActivity(activity) {
 	] = getRideHillStats(activity);
 
 	let processedActivity = {
-		distance: activity.distance,
-		moving_time: activity.moving_time,
-		total_elevation_gain: activity.total_elevation_gain,
-		distance_uphill: distance_uphill,
-		distance_downhill: distance_downhill,
-		average_uphill_gradient: average_uphill_gradient,
-		average_downhill_gradient: average_downhill_gradient,
-		workout_type: activity.workout_type,
+		input: [
+			activity.distance,
+			activity.total_elevation_gain,
+			distance_uphill,
+			distance_downhill,
+			average_uphill_gradient,
+			average_downhill_gradient,
+			workoutTypeToNumber(activity.workout_type),
+		],
+		label: activity.moving_time,
 	};
 
 	return processedActivity;
+}
+
+function workoutTypeToNumber(workoutType) {
+	switch (workoutType) {
+		case "Rest":
+			return 0;
+		case "Endurance":
+			return 1;
+		case "Intervals":
+			return 2;
+		case "Race":
+			return 3;
+		case "Unknown":
+			return 4;
+	}
 }
 
 /**
