@@ -60,8 +60,12 @@ function processActivity(activity) {
 			activity.total_elevation_gain,
 			distance_uphill,
 			distance_downhill,
-			average_uphill_gradient,
-			average_downhill_gradient,
+			average_uphill_gradient !== average_uphill_gradient
+				? 0
+				: average_uphill_gradient,
+			average_downhill_gradient !== average_downhill_gradient
+				? 0
+				: average_downhill_gradient,
 			workoutTypeToNumber(activity.workout_type),
 		],
 		label: activity.moving_time,
